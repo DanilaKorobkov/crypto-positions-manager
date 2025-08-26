@@ -2,20 +2,19 @@ package main
 
 import (
 	"context"
+	"github.com/DanilaKorobkov/crypto-positions-manager/internal/infra/positions_providers/uniswap_v3_base"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
 	"github.com/caarlos0/env/v11"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/hasura/go-graphql-client"
 	"github.com/rs/zerolog"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-
 	"github.com/DanilaKorobkov/crypto-positions-manager/internal/domain/services/watcher"
 	"github.com/DanilaKorobkov/crypto-positions-manager/internal/infra/notifiers/telegram"
-	"github.com/DanilaKorobkov/crypto-positions-manager/internal/infra/positions_providers/uniswap_v3_base"
 )
 
 type Config struct {

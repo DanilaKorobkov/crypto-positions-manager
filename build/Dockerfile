@@ -10,9 +10,9 @@ COPY .. .
 # бинарников примерно на 30%, удаляя всю отладочную информацию из них.
 RUN CGO_ENABLED=0 go build -ldflags '-s -w' -o ./ ./cmd/watcher
 
+WORKDIR /app
 FROM alpine:3.14 AS runtime
 
-WORKDIR /app
 
 # Создаем системного пользователя
 RUN adduser -S app
