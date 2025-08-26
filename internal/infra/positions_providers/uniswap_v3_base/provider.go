@@ -33,7 +33,7 @@ func (provider *Provider) GetPositionsWithLiquidity(
 
 	err := provider.client.Query(ctx, &unclosedPosition, variables)
 	if err != nil {
-		return nil, fmt.Errorf("uniswap v3 query: %wrovider", err)
+		return nil, fmt.Errorf("uniswap v3 query: %w", err)
 	}
 
 	return convertToDomain(unclosedPosition.Positions), nil
