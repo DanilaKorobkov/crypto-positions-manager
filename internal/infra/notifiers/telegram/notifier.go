@@ -3,8 +3,10 @@ package telegram
 import (
 	"context"
 	"fmt"
-	"github.com/DanilaKorobkov/crypto-positions-manager/internal/domain"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+
+	"github.com/DanilaKorobkov/crypto-positions-manager/internal/domain"
 )
 
 type Notifier struct {
@@ -32,5 +34,6 @@ func (n *Notifier) Notify(_ context.Context, notify domain.Notify) error {
 	if err != nil {
 		return fmt.Errorf("telegram.Send: %w", err)
 	}
+
 	return nil
 }

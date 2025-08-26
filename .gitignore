@@ -39,3 +39,6 @@ go.work.sum
 
 # Local env file
 .env
+
+# Taskfile
+.task

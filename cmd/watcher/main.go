@@ -2,17 +2,20 @@ package main
 
 import (
 	"context"
-	"github.com/DanilaKorobkov/crypto-positions-manager/internal/domain/services/watcher"
-	"github.com/DanilaKorobkov/crypto-positions-manager/internal/infra/notifiers/telegram"
-	"github.com/DanilaKorobkov/crypto-positions-manager/internal/infra/positions_providers/uniswapV3_base"
-	"github.com/caarlos0/env/v11"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/hasura/go-graphql-client"
-	"github.com/rs/zerolog"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/caarlos0/env/v11"
+	"github.com/hasura/go-graphql-client"
+	"github.com/rs/zerolog"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+
+	"github.com/DanilaKorobkov/crypto-positions-manager/internal/domain/services/watcher"
+	"github.com/DanilaKorobkov/crypto-positions-manager/internal/infra/notifiers/telegram"
+	"github.com/DanilaKorobkov/crypto-positions-manager/internal/infra/positions_providers/uniswap_v3_base"
 )
 
 type Config struct {
@@ -24,6 +27,7 @@ type Config struct {
 	CheckInterval    time.Duration `env:"CHECK_INTERVAL,required"`
 }
 
+//nolint:funlen,maintidx // How to make better?
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
@@ -31,6 +35,7 @@ func main() {
 	logger := zerolog.New(os.Stdout).With().Timestamp().Logger()
 
 	config := Config{}
+
 	err := env.Parse(&config)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("failed to parse config")
@@ -51,7 +56,7 @@ func main() {
 		WithRequestModifier(func(r *http.Request) {
 			r.Header.Set("Authorization", "Bearer "+config.TheGraphToken)
 		})
-	uniswap := uniswapV3_base.NewProvider(client)
+	uniswap := uniswap_v3_base.NewProvider(client)
 
 	watcherConfig := watcher.ServiceConfig{
 		Provider:      uniswap,
@@ -60,6 +65,7 @@ func main() {
 		Logger:        logger,
 	}
 	w := watcher.NewService(watcherConfig)
+
 	logger.Info().Msg("starting watcher")
 	w.StartWatching(ctx, config.WalletAddress)
 	logger.Info().Msg("watcher finished")

@@ -5,6 +5,18 @@ vars:
     sh: head -n 1 go.mod | awk -F ' ' '{print $2}' | awk -F '/' '{print $NF}'
 
 tasks:
+
+  lint-fix:
+    desc: Lint the source code
+    cmds:
+      - docker run --rm -v $(pwd):/app -w /app golangci/golangci-lint:v2.4.0 golangci-lint fmt
+      - docker run --rm -v $(pwd):/app -w /app golangci/golangci-lint:v2.4.0 golangci-lint run --fix
+
+  lint:
+    desc: Lint the source code
+    cmds:
+      - docker run --rm -v $(pwd):/app -w /app golangci/golangci-lint:v2.4.0 golangci-lint run
+
   build:
     desc: Build docker image with service
     cmds:

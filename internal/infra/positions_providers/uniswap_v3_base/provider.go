@@ -1,12 +1,14 @@
-package uniswapV3_base
+package uniswap_v3_base
 
 import (
 	"context"
 	"fmt"
-	"github.com/DanilaKorobkov/crypto-positions-manager/internal/domain"
+	"strconv"
+
 	"github.com/hasura/go-graphql-client"
 	"github.com/samber/lo"
-	"strconv"
+
+	"github.com/DanilaKorobkov/crypto-positions-manager/internal/domain"
 )
 
 type Provider struct {
@@ -19,18 +21,21 @@ func NewProvider(client *graphql.Client) *Provider {
 	}
 }
 
-func (w *Provider) GetOpenPositions(
+func (provider *Provider) GetPositionsWithLiquidity(
 	ctx context.Context,
 	walletAddress string,
 ) ([]domain.UniswapV3Position, error) {
 	var unclosedPosition unclosedPositionsQuery
+
 	variables := map[string]any{
 		"walletAddress": graphql.String(walletAddress),
 	}
-	err := w.client.Query(ctx, &unclosedPosition, variables)
+
+	err := provider.client.Query(ctx, &unclosedPosition, variables)
 	if err != nil {
-		return nil, fmt.Errorf("uniswap v3 query: %w", err)
+		return nil, fmt.Errorf("uniswap v3 query: %wrovider", err)
 	}
+
 	return convertToDomain(unclosedPosition.Positions), nil
 }
 
@@ -38,6 +43,7 @@ func convertToDomain(unclosedPositions []position) []domain.UniswapV3Position {
 	if len(unclosedPositions) == 0 {
 		return nil
 	}
+
 	return lo.Map(unclosedPositions, func(pos position, _ int) domain.UniswapV3Position {
 		return domain.UniswapV3Position{
 			ID:          pos.ID,
@@ -60,6 +66,7 @@ func mustConvertToInt(value string) int {
 		message := "mustConvertToInt: " + value
 		panic(message)
 	}
+
 	return integer
 }
 

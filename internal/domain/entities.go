@@ -17,6 +17,7 @@ type UniswapV3Position struct {
 	CurrentTick int
 }
 
+// IsActive check if the position in range.
 func (position UniswapV3Position) IsActive() bool {
 	return position.TickLower <= position.CurrentTick && position.CurrentTick <= position.TickUpper
 }

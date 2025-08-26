@@ -3,10 +3,12 @@ package watcher
 import (
 	"context"
 	"fmt"
-	"github.com/DanilaKorobkov/crypto-positions-manager/internal/domain"
+	"time"
+
 	"github.com/rs/zerolog"
 	"github.com/sourcegraph/conc/pool"
-	"time"
+
+	"github.com/DanilaKorobkov/crypto-positions-manager/internal/domain"
 )
 
 type ServiceConfig struct {
@@ -23,7 +25,7 @@ type Service struct {
 	logger        zerolog.Logger
 }
 
-func NewService(config ServiceConfig) *Service {
+func NewService(config ServiceConfig) *Service { //nolint:gocritic // Pointer is too much.
 	return &Service{
 		provider:      config.Provider,
 		notifier:      config.Notifier,
@@ -34,6 +36,7 @@ func NewService(config ServiceConfig) *Service {
 
 func (service *Service) StartWatching(ctx context.Context, walletAddress string) {
 	ticker := time.NewTicker(service.checkInterval)
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -47,45 +50,58 @@ func (service *Service) StartWatching(ctx context.Context, walletAddress string)
 func (service *Service) checkPositions(ctx context.Context, walletAddress string) {
 	logger := service.logger.With().Str("wallet", walletAddress).Logger()
 
-	positions, err := service.provider.GetOpenPositions(ctx, walletAddress)
+	positions, err := service.provider.GetPositionsWithLiquidity(ctx, walletAddress)
 	if err != nil {
 		logger.Error().Err(err).Send()
 		return
 	}
+
 	err = service.processPositions(ctx, positions)
 	if err != nil {
 		logger.Error().Err(err).Send()
 	}
 }
 
-func (service *Service) processPositions(ctx context.Context, positions []domain.UniswapV3Position) error {
+func (service *Service) processPosition(
+	ctx context.Context,
+	position domain.UniswapV3Position,
+) error {
+	if position.IsActive() {
+		return nil
+	}
+
+	notify := domain.Notify{
+		Message: buildNotifyMessage(position),
+	}
+
+	err := service.notifier.Notify(ctx, notify)
+	if err != nil {
+		return fmt.Errorf("notifier.Send: %w", err)
+	}
+
+	return nil
+}
+
+func (service *Service) processPositions(
+	ctx context.Context,
+	positions []domain.UniswapV3Position,
+) error {
 	if len(positions) == 0 {
 		return nil
 	}
+
 	executor := pool.New().WithContext(ctx).WithFirstError().WithCancelOnError()
 	for _, position := range positions {
 		executor.Go(func(ctx context.Context) error {
 			return service.processPosition(ctx, position)
 		})
 	}
+
 	err := executor.Wait()
 	if err != nil {
 		return fmt.Errorf("executor.Wait: %w", err)
 	}
-	return nil
-}
 
-func (service *Service) processPosition(ctx context.Context, position domain.UniswapV3Position) error {
-	if position.IsActive() {
-		return nil
-	}
-	notify := domain.Notify{
-		Message: buildNotifyMessage(position),
-	}
-	err := service.notifier.Notify(ctx, notify)
-	if err != nil {
-		return fmt.Errorf("notifier.Send: %w", err)
-	}
 	return nil
 }
 
