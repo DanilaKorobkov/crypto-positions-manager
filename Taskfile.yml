@@ -1,0 +1,19 @@
+version: '3'
+
+vars:
+  PROJECT_NAME:
+    sh: head -n 1 go.mod | awk -F ' ' '{print $2}' | awk -F '/' '{print $NF}'
+
+tasks:
+  build:
+    desc: Build docker image with service
+    cmds:
+      - docker build .
+        --file build/Dockerfile
+        --tag {{.PROJECT_NAME}}
+        --pull
+
+  run-image:
+    desc: Run service in docker
+    cmds:
+      - docker run --rm --env-file .env {{.PROJECT_NAME}}
