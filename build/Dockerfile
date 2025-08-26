@@ -18,6 +18,6 @@ WORKDIR /app
 RUN adduser -S app
 USER app
 
-COPY --from=builder /bin/asdasdas ./
+COPY --from=builder /bin/watcher ./
 
 CMD ["./watcher"]
