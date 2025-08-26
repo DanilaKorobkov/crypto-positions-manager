@@ -11,13 +11,13 @@ COPY .. .
 RUN CGO_ENABLED=0 go build -ldflags '-s -w' -o ./ ./cmd/watcher
 
 FROM alpine:3.14 AS runtime
-WORKDIR /app
 
+WORKDIR /app
 
 # Создаем системного пользователя
 RUN adduser -S app
 USER app
 
-COPY --from=builder /bin/dsadas ./
+COPY --from=builder /bin/watcher ./
 
 CMD ["./watcher"]
