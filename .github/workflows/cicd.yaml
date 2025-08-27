@@ -35,15 +35,16 @@ jobs:
       - name: Determine Docker tags
         id: set-env
         run: |
-          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/$(basename ${{ github.repository }})
+          IMAGE_NAME="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/crypto-positions-manager"
 
           if [ "${GITHUB_REF#refs/heads/}" = "main" ]; then
-            IMAGE_TAG=${GITHUB_SHA::7}
-            LATEST_TAG=latest
+            IMAGE_TAG="main-${GITHUB_SHA::7}"
+            LATEST_TAG="latest"
           else
             BRANCH_NAME=${GITHUB_REF#refs/heads/}
-            IMAGE_TAG=${BRANCH_NAME}-${GITHUB_SHA::7}
-            LATEST_TAG=${BRANCH_NAME}-latest
+            SAFE_BRANCH=${BRANCH_NAME//\//-}
+            IMAGE_TAG="feat-${SAFE_BRANCH}-${GITHUB_SHA::7}"
+            LATEST_TAG="feat-${SAFE_BRANCH}-latest"
           fi
 
           echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
