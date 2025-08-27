@@ -153,6 +153,7 @@ linters:
     - sloglint
     - spancheck
     - decorder
+    - godox
     - wsl # Deprecated
     - loggercheck # TODO: Maybe turn on?
     - importas # TODO: Maybe turn on?
