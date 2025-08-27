@@ -19,6 +19,16 @@ jobs:
       - name: Build Docker Image
         run: task build
 
+      - name: Save Docker image as artifact
+        run: |
+          docker save $IMAGE_NAME:$IMAGE_TAG | gzip > image.tar.gz
+
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image
+          path: image.tar.gz
+
   lint:
     runs-on: ubuntu-latest
     steps:
