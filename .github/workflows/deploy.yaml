@@ -1,7 +1,7 @@
 on:
   workflow_run:
     workflows: [ci]
-    types: [completed]
+    types: [completed, in_progress, requested]
 
 jobs:
   on-success:
