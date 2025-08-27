@@ -8,12 +8,11 @@ permissions:
   packages: write
 
 jobs:
-
   lint:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v5
 
       - name: Install Taskfile
         uses: ./.github/actions/taskfile
@@ -24,13 +23,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v5
 
       - name: Install Taskfile
         uses: ./.github/actions/taskfile
 
-      - name: Set up Docker Buildx
+      - name: Set Up Docker Sdk
         uses: docker/setup-buildx-action@v3
 
       - name: Build Docker Image
@@ -43,33 +42,25 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Determine Docker tags
-        id: set-env
+      - name: Determine Docker tags (main)
+        if: github.ref == 'refs/heads/main'
         run: |
           IMAGE_NAME="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/crypto-positions-manager"
+          IMAGE_TAG="main-${GITHUB_SHA::7}"
+          LATEST_TAG="latest"
 
-          if [ "${GITHUB_REF#refs/heads/}" = "main" ]; then
-            IMAGE_TAG="main-${GITHUB_SHA::7}"
-            LATEST_TAG="latest"
-          else
-            BRANCH_NAME=${GITHUB_REF#refs/heads/}
-            SAFE_BRANCH=${BRANCH_NAME//\//-}
-            IMAGE_TAG="${SAFE_BRANCH}-${GITHUB_SHA::7}"
-            LATEST_TAG="${SAFE_BRANCH}-latest"
-          fi
-
-          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
-          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
-          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
-
-          echo "image_name=$IMAGE_NAME" >> $GITHUB_OUTPUT
-          echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
-          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
-
-      - name: Build and push Docker images
+      - name: Determine Docker tags (other branches)
+        if: github.ref != 'refs/heads/main'
         run: |
-          docker buildx create --use --name multiarch-builder || docker buildx use multiarch-builder
+          BRANCH_NAME=${GITHUB_REF#refs/heads/}
+          SAFE_BRANCH=${BRANCH_NAME//\//-}
+          
+          IMAGE_NAME="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/crypto-positions-manager"
+          IMAGE_TAG="${SAFE_BRANCH}-${GITHUB_SHA::7}"
+          LATEST_TAG="${SAFE_BRANCH}-latest"
 
+      - name: Build and Push Docker images
+        run: |
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
             -t $IMAGE_NAME:$IMAGE_TAG \
