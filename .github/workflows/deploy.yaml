@@ -1,19 +1,20 @@
-name: deploy
+name: T2
 
 on:
   workflow_run:
-    workflows: [T1, "T1"]
-    branches: ['**', main, feat-2]
-    types: [completed, in_progress, requested]
+    workflows: ["T1"]       # Точно имя CI workflow
+    types: [completed]       # Только completed, другие типы игнорируются
 
 jobs:
-  on-success:
-    runs-on: ubuntu-latest
+  deploy:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    steps:
-      - run: echo 'The triggering workflow passed'
-  on-failure:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    permissions:
+      contents: read
+      packages: write
+
     steps:
-      - run: echo 'The triggering workflow failed
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
