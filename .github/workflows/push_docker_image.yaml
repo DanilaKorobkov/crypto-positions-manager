@@ -1,16 +1,7 @@
 name: push-docker-image
 
 on:
-  workflow_dispatch:
-    inputs:
-      ref:
-        description: 'Branch or commit to deploy'
-        required: true
-        default: 'main'
-      sha:
-        description: 'Commit SHA'
-        required: true
-        default: ''
+  workflow_call:
 
 jobs:
   deploy:
