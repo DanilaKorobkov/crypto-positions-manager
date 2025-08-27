@@ -1,0 +1,11 @@
+name: "Install Taskfile"
+description: "Install the Taskfile binary"
+runs:
+  using: "composite"
+  steps:
+    - name: Install Taskfile
+      shell: bash
+      run: |
+        curl -sL https://taskfile.dev/install.sh | sh
+        sudo mv ./bin/task /usr/local/bin/task
+        task --version
