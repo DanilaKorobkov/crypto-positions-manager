@@ -1,13 +1,10 @@
-name: Deploy Docker to GHCR
-
-#on:
-#  workflow_run:
-#    workflows: ["ci"]
-#    types:
-#      - completed
+name: deploy
 
 on:
-  - push
+  workflow_run:
+    workflows: ["ci"]
+    types:
+      - completed
 
 jobs:
   deploy:
