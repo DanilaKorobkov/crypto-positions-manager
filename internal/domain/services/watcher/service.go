@@ -115,11 +115,11 @@ func buildOutOfRangeMessage(inactivePosition domain.UniswapV3Position) string {
 
 func buildActivePositionMessage(activePosition domain.UniswapV3Position) string {
 	return fmt.Sprintf(
-		"✅[position](https://app.uniswap.org/positions/v3/base/%s) %s:%s in range: %.2f%%",
+		"✅[position](https://app.uniswap.org/positions/v3/base/%s) %s:%s in range: %d%%",
 		activePosition.ID,
 		activePosition.Token0.Name,
 		activePosition.Token1.Name,
-		calculateTickPercentagePosition(activePosition),
+		int(calculateTickPercentagePosition(activePosition)),
 	)
 }
 
