@@ -71,7 +71,7 @@ jobs:
           docker buildx create --use --name multiarch-builder || docker buildx use multiarch-builder
 
           docker buildx build \
-            --platform linux/amd64,linux/arm64,darwin/amd64,darwin/arm64 \
+            --platform linux/amd64,linux/arm64 \
             -t $IMAGE_NAME:$IMAGE_TAG \
             -t $IMAGE_NAME:$LATEST_TAG \
             -f build/Dockerfile \
