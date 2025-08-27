@@ -1,4 +1,4 @@
-name: ci
+name: T1
 
 on: [push]
 
