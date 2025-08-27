@@ -20,6 +20,18 @@ jobs:
       - name: Linters
         run: task lint
 
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v5
+
+      - name: Install Taskfile
+        uses: ./.github/actions/taskfile
+
+      - name: Run Tests
+        run: task tests
+
   build:
     runs-on: ubuntu-latest
     steps:
