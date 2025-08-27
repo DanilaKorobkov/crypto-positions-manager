@@ -10,27 +10,20 @@ import (
 )
 
 type Notifier struct {
-	telegram *tgbotapi.BotAPI
-	userID   int64
+	telegramBot *tgbotapi.BotAPI
 }
 
-type NotifierConfig struct {
-	Telegram *tgbotapi.BotAPI
-	UserID   int64
-}
-
-func NewNotifier(config NotifierConfig) *Notifier {
+func NewNotifier(telegramBot *tgbotapi.BotAPI) *Notifier {
 	return &Notifier{
-		telegram: config.Telegram,
-		userID:   config.UserID,
+		telegramBot: telegramBot,
 	}
 }
 
-func (n *Notifier) Notify(_ context.Context, notify domain.Notify) error {
-	msg := tgbotapi.NewMessage(n.userID, notify.Message)
-	msg.ParseMode = tgbotapi.ModeMarkdownV2
+func (n *Notifier) Notify(_ context.Context, user domain.User, text string) error {
+	message := tgbotapi.NewMessage(user.TelegramUserID, text)
+	message.ParseMode = tgbotapi.ModeMarkdownV2
 
-	_, err := n.telegram.Send(msg)
+	_, err := n.telegramBot.Send(message)
 	if err != nil {
 		return fmt.Errorf("telegram.Send: %w", err)
 	}

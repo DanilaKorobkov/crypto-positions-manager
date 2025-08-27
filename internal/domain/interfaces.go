@@ -8,6 +8,6 @@ type UniswapProvider interface {
 }
 
 type Notifier interface {
-	// Notify sends notify to user.
-	Notify(ctx context.Context, notify Notify) error
+	// Notify sends message to user.
+	Notify(ctx context.Context, user User, message string) error
 }

@@ -3,9 +3,9 @@ package watcher
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
-	"github.com/rs/zerolog"
 	"github.com/sourcegraph/conc/pool"
 
 	"github.com/DanilaKorobkov/crypto-positions-manager/internal/domain"
@@ -15,17 +15,17 @@ type ServiceConfig struct {
 	Provider      domain.UniswapProvider
 	Notifier      domain.Notifier
 	CheckInterval time.Duration
-	Logger        zerolog.Logger
+	Logger        *slog.Logger
 }
 
 type Service struct {
 	provider      domain.UniswapProvider
 	notifier      domain.Notifier
 	checkInterval time.Duration
-	logger        zerolog.Logger
+	logger        *slog.Logger
 }
 
-func NewService(config ServiceConfig) *Service { //nolint:gocritic // Pointer is too much.
+func NewService(config ServiceConfig) *Service {
 	return &Service{
 		provider:      config.Provider,
 		notifier:      config.Notifier,
@@ -34,7 +34,7 @@ func NewService(config ServiceConfig) *Service { //nolint:gocritic // Pointer is
 	}
 }
 
-func (service *Service) StartWatching(ctx context.Context, walletAddress string) {
+func (service *Service) StartWatching(ctx context.Context, user domain.User) {
 	ticker := time.NewTicker(service.checkInterval)
 
 	for {
@@ -42,38 +42,37 @@ func (service *Service) StartWatching(ctx context.Context, walletAddress string)
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			service.checkPositions(context.WithoutCancel(ctx), walletAddress)
+			service.checkPositions(context.WithoutCancel(ctx), user)
 		}
 	}
 }
 
-func (service *Service) checkPositions(ctx context.Context, walletAddress string) {
-	logger := service.logger.With().Str("wallet", walletAddress).Logger()
+func (service *Service) checkPositions(ctx context.Context, user domain.User) {
+	logger := service.logger.With(slog.String("wallet", user.Wallet))
 
-	positions, err := service.provider.GetPositionsWithLiquidity(ctx, walletAddress)
+	positions, err := service.provider.GetPositionsWithLiquidity(ctx, user.Wallet)
 	if err != nil {
-		logger.Error().Err(err).Send()
+		logger.Error("GetPositionsWithLiquidity", slog.String("error", err.Error()))
 		return
 	}
 
-	err = service.processPositions(ctx, positions)
+	err = service.processPositions(ctx, user, positions)
 	if err != nil {
-		logger.Error().Err(err).Send()
+		logger.Error("processPositions", slog.String("error", err.Error()))
 	}
 }
 
 func (service *Service) processPosition(
 	ctx context.Context,
+	user domain.User,
 	position domain.UniswapV3Position,
 ) error {
-	notify := domain.Notify{
-		Message: buildActivePositionMessage(position),
-	}
-	if !position.IsActive() {
-		notify.Message = buildOutOfRangeMessage(position)
+	message := buildOutOfRangeMessage(position)
+	if position.IsActive() {
+		message = buildActivePositionMessage(position)
 	}
 
-	err := service.notifier.Notify(ctx, notify)
+	err := service.notifier.Notify(ctx, user, message)
 	if err != nil {
 		return fmt.Errorf("notifier.Send: %w", err)
 	}
@@ -83,6 +82,7 @@ func (service *Service) processPosition(
 
 func (service *Service) processPositions(
 	ctx context.Context,
+	user domain.User,
 	positions []domain.UniswapV3Position,
 ) error {
 	if len(positions) == 0 {
@@ -92,7 +92,7 @@ func (service *Service) processPositions(
 	executor := pool.New().WithContext(ctx).WithFirstError().WithCancelOnError()
 	for _, position := range positions {
 		executor.Go(func(ctx context.Context) error {
-			return service.processPosition(ctx, position)
+			return service.processPosition(ctx, user, position)
 		})
 	}
 

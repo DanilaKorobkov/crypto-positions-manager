@@ -4,8 +4,9 @@ type Token struct {
 	Name string
 }
 
-type Notify struct {
-	Message string
+type User struct {
+	TelegramUserID int64
+	Wallet         string
 }
 
 type UniswapV3Position struct {
