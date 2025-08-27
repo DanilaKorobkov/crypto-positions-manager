@@ -52,9 +52,9 @@ jobs:
 #          ref: ${{ github.ref }}
 #          token: ${{ secrets.GITHUB_TOKEN }}
 
-  push_docker_image:
-    needs: [ build, lint ]
-    uses: ./.github/workflows/push_docker_image.yaml
+#  push_docker_image:
+#    needs: [ build, lint ]
+#    uses: ./.github/workflows/push_docker_image.yaml
 
 
 #
