@@ -1,13 +1,11 @@
-name: T2
+name: push-docker-image
 
 on:
-  workflow_run:
-    workflows: ["T1"]       # Точно имя CI workflow
-    types: [completed]       # Только completed, другие типы игнорируются
+  repository_dispatch:
+    types: [push-docker-image]
 
 jobs:
   deploy:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
