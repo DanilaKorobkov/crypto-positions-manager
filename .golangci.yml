@@ -522,8 +522,8 @@ linters:
           disabled: false
           arguments:
             - max-lit-count: "1"
+              allow-ints: "0,100"
               allow-strs: '""'
-              allow-ints: "0"
               allow-floats: "0.0"
         # https://github.com/mgechev/revive/blob/HEAD/RULES_DESCRIPTIONS.md#line-length-limit
         - name: line-length-limit
@@ -548,6 +548,14 @@ linters:
       # Default: []
       packages:
         - github.com/jmoiron/sqlx
+
+    mnd:
+      # List of numbers to exclude from analysis.
+      # The numbers should be written as string.
+      # Values always ignored: "1", "1.0", "0" and "0.0".
+      # Default: []
+      ignored-numbers:
+        - '100'
 
     # TODO: improve
     tagliatelle:

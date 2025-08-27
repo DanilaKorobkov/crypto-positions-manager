@@ -66,12 +66,11 @@ func (service *Service) processPosition(
 	ctx context.Context,
 	position domain.UniswapV3Position,
 ) error {
-	if position.IsActive() {
-		return nil
-	}
-
 	notify := domain.Notify{
-		Message: buildNotifyMessage(position),
+		Message: buildActivePositionMessage(position),
+	}
+	if !position.IsActive() {
+		notify.Message = buildOutOfRangeMessage(position)
 	}
 
 	err := service.notifier.Notify(ctx, notify)
@@ -105,10 +104,25 @@ func (service *Service) processPositions(
 	return nil
 }
 
-func buildNotifyMessage(inactivePosition domain.UniswapV3Position) string {
+func buildOutOfRangeMessage(inactivePosition domain.UniswapV3Position) string {
 	return fmt.Sprintf(
-		"[position](https://app.uniswap.org/positions/v3/base/%s) %s:%s is out of range",
+		"❌[position](https://app.uniswap.org/positions/v3/base/%s) %s:%s is out of range",
 		inactivePosition.ID,
 		inactivePosition.Token0.Name,
-		inactivePosition.Token1.Name)
+		inactivePosition.Token1.Name,
+	)
+}
+
+func buildActivePositionMessage(activePosition domain.UniswapV3Position) string {
+	return fmt.Sprintf(
+		"✅[position](https://app.uniswap.org/positions/v3/base/%s) %s:%s in range (%.2f%%)",
+		activePosition.ID,
+		activePosition.Token0.Name,
+		activePosition.Token1.Name,
+		calculateTickPercentagePosition(activePosition),
+	)
+}
+
+func calculateTickPercentagePosition(position domain.UniswapV3Position) float64 {
+	return float64(position.CurrentTick-position.TickLower) / float64(position.TickUpper-position.TickLower) * 100
 }
