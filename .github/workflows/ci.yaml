@@ -41,17 +41,16 @@ jobs:
       - name: Linters
         run: task lint
 
-  trigger-push-docker-image:
-    needs: [ build, lint ]
+  trigger-deploy:
+    needs: [build, lint]
     runs-on: ubuntu-latest
     steps:
       - name: Trigger deploy workflow
-        uses: peter-evans/repository-dispatch@v2
+        uses: benc-uk/workflow-dispatch@v1
         with:
+          workflow: push_docker_image.yaml
+          ref: ${{ github.ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          event-type: push-docker-image
-          client-payload: |
-            {
-              "ref": "${{ github.ref }}",
-              "sha": "${{ github.sha }}"
-            }
+          inputs: |
+            ref: ${{ github.ref }}
+            sha: ${{ github.sha }}
