@@ -1,4 +1,4 @@
-name: install-taskfile
+name: taskfile
 
 on:
   workflow_call:
