@@ -30,16 +30,25 @@ tasks:
           echo "{{.BRANCH_SLUG}}-{{.GIT_SHA}}"
         fi
 
-  lint-fix:
+  format:
     desc: Lint the source code
     cmds:
       - docker run --rm -v $(pwd):/app -w /app golangci/golangci-lint:v2.4.0 golangci-lint fmt
       - docker run --rm -v $(pwd):/app -w /app golangci/golangci-lint:v2.4.0 golangci-lint run --fix
 
   lint:
+    desc: All linters
+    deps: [lint-golang, lint-actions]
+
+  lint-golang:
     desc: Lint the source code
     cmds:
       - docker run --rm -v $(pwd):/app -w /app golangci/golangci-lint:v2.4.0 golangci-lint run
+
+  lint-actions:
+    desc: Lint the github actions
+    cmds:
+      - go run github.com/rhysd/actionlint/cmd/actionlint@latest
 
   tests:
     desc: Run tests
