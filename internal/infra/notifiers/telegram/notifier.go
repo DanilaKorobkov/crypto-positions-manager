@@ -22,6 +22,7 @@ func NewNotifier(telegramBot *tgbotapi.BotAPI) *Notifier {
 func (n *Notifier) Notify(_ context.Context, subject domain.Subject, text string) error {
 	message := tgbotapi.NewMessage(subject.TelegramUserID, text)
 	message.ParseMode = tgbotapi.ModeMarkdownV2
+	message.DisableWebPagePreview = true
 
 	_, err := n.telegramBot.Send(message)
 	if err != nil {

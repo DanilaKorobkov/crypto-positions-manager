@@ -149,13 +149,13 @@ linters:
     - nlreturn
     - prealloc
     - promlinter
+    - nonamedreturns
     - protogetter
     - sloglint
     - spancheck
     - decorder
     - godox
     - wsl # Deprecated
-    - loggercheck # TODO: Maybe turn on?
     - importas # TODO: Maybe turn on?
     - misspell # TODO: Maybe turn on?
 
@@ -163,6 +163,11 @@ linters:
   settings:
     # See the dedicated "linters.settings" documentation section.
     option: value
+
+    loggercheck:
+      # Require all logging keys to be inlined constant strings.
+      # Default: false
+      require-string-key: true
 
     cyclop:
       # The maximal code complexity to report.
