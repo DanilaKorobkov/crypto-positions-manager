@@ -1,0 +1,3 @@
+shellcheck:
+  ignores:
+    - SC2086

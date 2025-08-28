@@ -64,7 +64,7 @@ jobs:
       - name: Set image name and tag
         run: |
           IMAGE_NAME="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/$(task project-name)"
-          IMAGE_TAG="$(task image-tag)"
+          IMAGE_TAG=$(task image-tag)
           
           echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
@@ -72,6 +72,6 @@ jobs:
       - name: Build docker images
         run: |
           docker buildx build \
-            -t "$IMAGE_NAME:$IMAGE_TAG" \
+            -t $IMAGE_NAME:$IMAGE_TAG \
             -f build/Dockerfile \
             .
