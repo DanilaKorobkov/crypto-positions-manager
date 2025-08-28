@@ -1,4 +1,4 @@
-module github.com/DanilaKorobkov/crypto-positions-manager
+module github.com/DanilaKorobkov/defi-monitoring
 
 go 1.23.6
 

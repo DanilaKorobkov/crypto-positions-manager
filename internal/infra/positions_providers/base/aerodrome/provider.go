@@ -8,7 +8,7 @@ import (
 	"github.com/hasura/go-graphql-client"
 	"github.com/samber/lo"
 
-	"github.com/DanilaKorobkov/crypto-positions-manager/internal/domain"
+	"github.com/DanilaKorobkov/defi-monitoring/internal/domain"
 )
 
 type ProviderTheGraph struct {
