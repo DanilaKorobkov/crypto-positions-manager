@@ -9,6 +9,7 @@ import (
 	"github.com/sourcegraph/conc/pool"
 
 	"github.com/DanilaKorobkov/crypto-positions-manager/internal/domain"
+	"github.com/DanilaKorobkov/crypto-positions-manager/pkg/tickers"
 )
 
 type ServiceConfig struct {
@@ -35,7 +36,7 @@ func NewService(config ServiceConfig) *Service {
 }
 
 func (service *Service) StartWatching(ctx context.Context, subject domain.Subject) {
-	ticker := time.NewTicker(service.checkInterval)
+	ticker := tickers.NewTickerChanWithInitial(service.checkInterval)
 
 	for {
 		select {
@@ -56,9 +57,15 @@ func (service *Service) checkPositions(ctx context.Context, subject domain.Subje
 		return
 	}
 
+	if len(positions) == 0 {
+		logger.Info("no positions found")
+		return
+	}
+
 	err = service.processPositions(ctx, subject, positions)
 	if err != nil {
 		logger.Error("processPositions", slog.String("err", err.Error()))
+		return
 	}
 }
 
