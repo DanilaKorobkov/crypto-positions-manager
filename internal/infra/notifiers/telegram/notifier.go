@@ -7,7 +7,7 @@ import (
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
-	"github.com/DanilaKorobkov/crypto-positions-manager/internal/domain"
+	"github.com/DanilaKorobkov/defi-monitoring/internal/domain"
 )
 
 type Notifier struct {

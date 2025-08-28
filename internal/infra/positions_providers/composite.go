@@ -7,7 +7,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/sourcegraph/conc/pool"
 
-	"github.com/DanilaKorobkov/crypto-positions-manager/internal/domain"
+	"github.com/DanilaKorobkov/defi-monitoring/internal/domain"
 )
 
 type Composite struct {

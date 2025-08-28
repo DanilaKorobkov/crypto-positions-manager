@@ -14,13 +14,13 @@ import (
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
-	"github.com/DanilaKorobkov/crypto-positions-manager/internal"
-	"github.com/DanilaKorobkov/crypto-positions-manager/internal/domain"
-	"github.com/DanilaKorobkov/crypto-positions-manager/internal/domain/services/watcher"
-	"github.com/DanilaKorobkov/crypto-positions-manager/internal/infra/notifiers/telegram"
-	"github.com/DanilaKorobkov/crypto-positions-manager/internal/infra/positions_providers"
-	"github.com/DanilaKorobkov/crypto-positions-manager/internal/infra/positions_providers/base/aerodrome"
-	"github.com/DanilaKorobkov/crypto-positions-manager/internal/infra/positions_providers/base/uniswap_v3"
+	"github.com/DanilaKorobkov/defi-monitoring/internal"
+	"github.com/DanilaKorobkov/defi-monitoring/internal/domain"
+	"github.com/DanilaKorobkov/defi-monitoring/internal/domain/services/watcher"
+	"github.com/DanilaKorobkov/defi-monitoring/internal/infra/notifiers/telegram"
+	"github.com/DanilaKorobkov/defi-monitoring/internal/infra/positions_providers"
+	"github.com/DanilaKorobkov/defi-monitoring/internal/infra/positions_providers/base/aerodrome"
+	"github.com/DanilaKorobkov/defi-monitoring/internal/infra/positions_providers/base/uniswap_v3"
 )
 
 type Config struct {

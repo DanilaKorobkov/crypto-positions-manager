@@ -8,8 +8,8 @@ import (
 
 	"github.com/sourcegraph/conc/pool"
 
-	"github.com/DanilaKorobkov/crypto-positions-manager/internal/domain"
-	"github.com/DanilaKorobkov/crypto-positions-manager/pkg/tickers"
+	"github.com/DanilaKorobkov/defi-monitoring/internal/domain"
+	"github.com/DanilaKorobkov/defi-monitoring/pkg/tickers"
 )
 
 type ServiceConfig struct {
