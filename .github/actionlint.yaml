@@ -1,3 +1,4 @@
-shellcheck:
-  ignores:
-    - SC2086
+paths:
+  .github/workflows/**/*.{yml,yaml}:
+    ignore:
+      - 'shellcheck reported issue in this script: SC2086:.+'
