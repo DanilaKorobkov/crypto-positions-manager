@@ -10,7 +10,7 @@ permissions:
   packages: write
 
 jobs:
-  lint:
+  lint-golang:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -19,8 +19,20 @@ jobs:
       - name: Install taskfile
         uses: ./.github/actions/taskfile
 
-      - name: Run linters
-        run: task lint
+      - name: Run golang ci linter
+        run: task lint-golang
+
+  lint-actions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Install taskfile
+        uses: ./.github/actions/taskfile
+
+      - name: Run actions linter
+        run: task lint-actions
 
   tests:
     runs-on: ubuntu-latest
