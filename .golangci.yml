@@ -522,7 +522,7 @@ linters:
           disabled: false
           arguments:
             - max-lit-count: "1"
-              allow-ints: "0,100"
+              allow-ints: "0,1,100"
               allow-strs: '"","err"'
               allow-floats: "0.0"
         # https://github.com/mgechev/revive/blob/HEAD/RULES_DESCRIPTIONS.md#line-length-limit

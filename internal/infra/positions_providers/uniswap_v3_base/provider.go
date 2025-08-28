@@ -71,7 +71,7 @@ func mustConvertToInt(value string) int {
 }
 
 type unclosedPositionsQuery struct {
-	Positions []position `graphql:"positions(where: {owner: $walletAddress, liquidity_gt: 0})"`
+	Positions []position `graphql:"positions(where: {owner: $wallet, liquidity_gt: 0})"`
 }
 
 type position struct {
