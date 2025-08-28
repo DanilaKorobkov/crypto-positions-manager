@@ -61,4 +61,5 @@ jobs:
         run: |
           docker buildx build \
             -t $IMAGE_NAME:$IMAGE_TAG \
-            -f build/Dockerfile
+            -f build/Dockerfile \
+            .
