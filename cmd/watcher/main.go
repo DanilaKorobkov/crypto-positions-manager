@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -9,22 +11,24 @@ import (
 
 	"github.com/caarlos0/env/v11"
 	"github.com/hasura/go-graphql-client"
-	"github.com/rs/zerolog"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
+	"github.com/DanilaKorobkov/crypto-positions-manager/internal"
+	"github.com/DanilaKorobkov/crypto-positions-manager/internal/domain"
 	"github.com/DanilaKorobkov/crypto-positions-manager/internal/domain/services/watcher"
 	"github.com/DanilaKorobkov/crypto-positions-manager/internal/infra/notifiers/telegram"
 	"github.com/DanilaKorobkov/crypto-positions-manager/internal/infra/positions_providers/uniswap_v3_base"
 )
 
 type Config struct {
-	TelegramBotToken string        `env:"TELEGRAM_BOT_TOKEN,required,unset"`
-	TelegramUserID   int64         `env:"TELEGRAM_USER_ID,required,unset"`
-	WalletAddress    string        `env:"WALLET_ADDRESS,required,unset"`
-	SubgraphID       string        `env:"SUBGRAPH_ID,required"`
-	TheGraphToken    string        `env:"THE_GRAPH_TOKEN,required,unset"`
-	CheckInterval    time.Duration `env:"CHECK_INTERVAL,required"`
+	TelegramBotToken            string        `env:"TELEGRAM_BOT_TOKEN,required,unset"`
+	ErrorReceiverTelegramUserID int64         `env:"ERROR_RECEIVER_TELEGRAM_USER_ID,required,unset"`
+	SubjectTelegramUserID       int64         `env:"SUBJECT_TELEGRAM_USER_ID,required,unset"`
+	SubjectWallet               string        `env:"SUBJECT_WALLET,required,unset"`
+	SubgraphID                  string        `env:"SUBGRAPH_ID,required"`
+	TheGraphToken               string        `env:"THE_GRAPH_TOKEN,required,unset"`
+	CheckInterval               time.Duration `env:"CHECK_INTERVAL,required"`
 }
 
 //nolint:funlen,maintidx // How to make better?
@@ -32,24 +36,25 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
-	logger := zerolog.New(os.Stdout).With().Timestamp().Logger()
-
 	config := Config{}
 
 	err := env.Parse(&config)
 	if err != nil {
-		logger.Fatal().Err(err).Msg("failed to parse config")
+		fatal(slog.Default(), fmt.Errorf("env.Parse: %w", err))
 	}
 
-	bot, err := tgbotapi.NewBotAPI(config.TelegramBotToken)
+	loggerConfig := internal.LoggerConfig{
+		TelegramBotToken:       config.TelegramBotToken,
+		TelegramReceiverUserID: config.ErrorReceiverTelegramUserID,
+	}
+	logger := internal.NewLogger(loggerConfig)
+
+	telegramBot, err := tgbotapi.NewBotAPI(config.TelegramBotToken)
 	if err != nil {
-		logger.Fatal().Err(err).Msg("failed to create telegram bot")
+		fatal(slog.Default(), fmt.Errorf("tgbotapi.NewBotAPI: %w", err))
 	}
 
-	telegramNotifier := telegram.NewNotifier(telegram.NotifierConfig{
-		Telegram: bot,
-		UserID:   config.TelegramUserID,
-	})
+	telegramNotifier := telegram.NewNotifier(telegramBot)
 
 	url := "https://gateway.thegraph.com/api/subgraphs/id/" + config.SubgraphID
 	client := graphql.NewClient(url, http.DefaultClient).
@@ -64,9 +69,19 @@ func main() {
 		CheckInterval: config.CheckInterval,
 		Logger:        logger,
 	}
-	w := watcher.NewService(watcherConfig)
+	watcherService := watcher.NewService(watcherConfig)
 
-	logger.Info().Msg("starting watcher")
-	w.StartWatching(ctx, config.WalletAddress)
-	logger.Info().Msg("watcher finished")
+	subject := domain.Subject{
+		TelegramUserID: config.SubjectTelegramUserID,
+		Wallet:         config.SubjectWallet,
+	}
+
+	logger.Info("starting watcher")
+	watcherService.StartWatching(ctx, subject)
+	logger.Info("watcher finished")
+}
+
+func fatal(logger *slog.Logger, err error) {
+	logger.Error("-", slog.String("err", err.Error()))
+	os.Exit(-1) //nolint:revive // It's easier
 }
