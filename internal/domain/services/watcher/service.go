@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"strings"
 	"time"
 
 	"github.com/sourcegraph/conc/pool"
@@ -14,25 +13,25 @@ import (
 )
 
 type ServiceConfig struct {
-	Provider      domain.UniswapProvider
-	Notifier      domain.Notifier
-	CheckInterval time.Duration
-	Logger        *slog.Logger
+	LiquidityPoolPositions domain.LiquidityPoolPositionsProvider
+	Notifier               domain.Notifier
+	CheckInterval          time.Duration
+	Logger                 *slog.Logger
 }
 
 type Service struct {
-	provider      domain.UniswapProvider
-	notifier      domain.Notifier
-	checkInterval time.Duration
-	logger        *slog.Logger
+	liquidityPoolPositions domain.LiquidityPoolPositionsProvider
+	notifier               domain.Notifier
+	checkInterval          time.Duration
+	logger                 *slog.Logger
 }
 
 func NewService(config ServiceConfig) *Service {
 	return &Service{
-		provider:      config.Provider,
-		notifier:      config.Notifier,
-		checkInterval: config.CheckInterval,
-		logger:        config.Logger,
+		liquidityPoolPositions: config.LiquidityPoolPositions,
+		notifier:               config.Notifier,
+		checkInterval:          config.CheckInterval,
+		logger:                 config.Logger,
 	}
 }
 
@@ -52,7 +51,7 @@ func (service *Service) StartWatching(ctx context.Context, subject domain.Subjec
 func (service *Service) checkPositions(ctx context.Context, subject domain.Subject) {
 	logger := service.logger.With(slog.String("wallet", subject.Wallet))
 
-	positions, err := service.provider.GetPositionsWithLiquidity(ctx, subject.Wallet)
+	positions, err := service.liquidityPoolPositions.GetPositionsWithLiquidity(ctx, subject.Wallet)
 	if err != nil {
 		logger.Error("GetPositionsWithLiquidity", slog.String("err", err.Error()))
 		return
@@ -73,14 +72,14 @@ func (service *Service) checkPositions(ctx context.Context, subject domain.Subje
 func (service *Service) processPosition(
 	ctx context.Context,
 	subject domain.Subject,
-	position domain.UniswapV3Position,
+	position domain.LiquidityPoolPosition,
 ) error {
-	message := buildOutOfRangeMessage(position)
-	if position.IsActive() {
-		message = buildActivePositionMessage(position)
+	notify := service.notifier.NotifyLiquidityPoolPositionInRange
+	if !position.IsInRange() {
+		notify = service.notifier.NotifyLiquidityPoolPositionOutOfRange
 	}
 
-	err := service.notifier.Notify(ctx, subject, message)
+	err := notify(ctx, subject, position)
 	if err != nil {
 		return fmt.Errorf("notifier.Send: %w", err)
 	}
@@ -91,7 +90,7 @@ func (service *Service) processPosition(
 func (service *Service) processPositions(
 	ctx context.Context,
 	subject domain.Subject,
-	positions []domain.UniswapV3Position,
+	positions []domain.LiquidityPoolPosition,
 ) error {
 	if len(positions) == 0 {
 		return nil
@@ -110,37 +109,4 @@ func (service *Service) processPositions(
 	}
 
 	return nil
-}
-
-func buildOutOfRangeMessage(inactivePosition domain.UniswapV3Position) string {
-	return fmt.Sprintf(
-		"❌ [Position](https://app.uniswap.org/positions/v3/base/%s) %s : %s out of range",
-		inactivePosition.ID,
-		inactivePosition.Token0.Name,
-		inactivePosition.Token1.Name,
-	)
-}
-
-func buildActivePositionMessage(activePosition domain.UniswapV3Position) string {
-	token0, token1 := calculateTokensPercentage(activePosition)
-
-	return fmt.Sprintf(
-		`✅ [Position](https://app.uniswap.org/positions/v3/base/%s) in range\. %s\(%s%%\) : %s\(%s%%\)\.`,
-		activePosition.ID,
-		activePosition.Token0.Name,
-		formatAndEscape(token0),
-		activePosition.Token1.Name,
-		formatAndEscape(token1),
-	)
-}
-
-func calculateTokensPercentage(position domain.UniswapV3Position) (token0, token1 float64) {
-	token1 = float64(position.CurrentTick-position.TickLower) / float64(position.TickUpper-position.TickLower) * 100
-	token0 = 100 - token1
-	return token0, token1
-}
-
-func formatAndEscape(value float64) string {
-	cut := fmt.Sprintf("%.2f", value)
-	return strings.Replace(cut, ".", ",", 1)
 }
