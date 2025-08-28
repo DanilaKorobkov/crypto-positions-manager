@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/sourcegraph/conc/pool"
@@ -113,7 +114,7 @@ func (service *Service) processPositions(
 
 func buildOutOfRangeMessage(inactivePosition domain.UniswapV3Position) string {
 	return fmt.Sprintf(
-		"❌[position](https://app.uniswap.org/positions/v3/base/%s) %s:%s is out of range",
+		"❌ [Position](https://app.uniswap.org/positions/v3/base/%s) %s : %s out of range",
 		inactivePosition.ID,
 		inactivePosition.Token0.Name,
 		inactivePosition.Token1.Name,
@@ -121,15 +122,25 @@ func buildOutOfRangeMessage(inactivePosition domain.UniswapV3Position) string {
 }
 
 func buildActivePositionMessage(activePosition domain.UniswapV3Position) string {
+	token0, token1 := calculateTokensPercentage(activePosition)
+
 	return fmt.Sprintf(
-		"✅[position](https://app.uniswap.org/positions/v3/base/%s) %s:%s in range: %d%%",
+		`✅ [Position](https://app.uniswap.org/positions/v3/base/%s) in range\. %s\(%s%%\) : %s\(%s%%\)\.`,
 		activePosition.ID,
 		activePosition.Token0.Name,
+		formatAndEscape(token0),
 		activePosition.Token1.Name,
-		int(calculateTickPercentagePosition(activePosition)),
+		formatAndEscape(token1),
 	)
 }
 
-func calculateTickPercentagePosition(position domain.UniswapV3Position) float64 {
-	return float64(position.CurrentTick-position.TickLower) / float64(position.TickUpper-position.TickLower) * 100
+func calculateTokensPercentage(position domain.UniswapV3Position) (token0, token1 float64) {
+	token1 = float64(position.CurrentTick-position.TickLower) / float64(position.TickUpper-position.TickLower) * 100
+	token0 = 100 - token1
+	return token0, token1
+}
+
+func formatAndEscape(value float64) string {
+	cut := fmt.Sprintf("%.2f", value)
+	return strings.Replace(cut, ".", ",", 1)
 }
