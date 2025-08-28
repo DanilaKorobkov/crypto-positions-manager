@@ -2,12 +2,16 @@ package domain
 
 import "context"
 
-type UniswapProvider interface {
-	// GetPositionsWithLiquidity returns uniswap positions that have liquidity.
-	GetPositionsWithLiquidity(ctx context.Context, wallet string) ([]UniswapV3Position, error)
+type LiquidityPoolPositionsProvider interface {
+	// GetName returns driver information.
+	GetName() string
+	// GetPositionsWithLiquidity get wallet positions with liquidity.
+	GetPositionsWithLiquidity(ctx context.Context, wallet string) ([]LiquidityPoolPosition, error)
 }
 
 type Notifier interface {
-	// Notify sends message to subject.
-	Notify(ctx context.Context, user Subject, message string) error
+	// NotifyLiquidityPoolPositionInRange notify subject the position is active.
+	NotifyLiquidityPoolPositionInRange(ctx context.Context, subject Subject, position LiquidityPoolPosition) error
+	// NotifyLiquidityPoolPositionOutOfRange notify subject the position out of range.
+	NotifyLiquidityPoolPositionOutOfRange(ctx context.Context, subject Subject, position LiquidityPoolPosition) error
 }

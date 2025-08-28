@@ -169,6 +169,10 @@ linters:
       # Default: false
       require-string-key: true
 
+    varnamelen:
+      ignore-names:
+        - p # for conc.Pool
+
     cyclop:
       # The maximal code complexity to report.
       # Default: 10
@@ -390,6 +394,10 @@ linters:
       # Enable all checks.
       # Default: false
       enable-all: true
+      # Which checks should be disabled; can't be combined with 'enabled-checks'.
+      # Default: []
+      disabled-checks:
+        - hugeParam
 
     gocyclo:
       # Minimal code complexity to report.
@@ -526,7 +534,7 @@ linters:
         - name: add-constant
           disabled: false
           arguments:
-            - max-lit-count: "1"
+            - max-lit-count: "2"
               allow-ints: "0,1,100"
               allow-strs: '"","err"'
               allow-floats: "0.0"

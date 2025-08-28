@@ -52,7 +52,6 @@ func matchLogToZeroLog(context.Context, slog.Record) bool {
 	return true
 }
 
-//nolint:gocritic // It's the library contract
 func matchLogToTelegram(_ context.Context, record slog.Record) bool {
 	return record.Level == slog.LevelError
 }

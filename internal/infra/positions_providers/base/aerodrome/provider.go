@@ -1,4 +1,4 @@
-package uniswap_v3_base
+package aerodrome
 
 import (
 	"context"
@@ -11,51 +11,57 @@ import (
 	"github.com/DanilaKorobkov/crypto-positions-manager/internal/domain"
 )
 
-type Provider struct {
+type ProviderTheGraph struct {
 	client *graphql.Client
 }
 
-func NewProvider(client *graphql.Client) *Provider {
-	return &Provider{
+func NewProviderTheGraph(client *graphql.Client) *ProviderTheGraph {
+	return &ProviderTheGraph{
 		client: client,
 	}
 }
 
-func (provider *Provider) GetPositionsWithLiquidity(
+func (*ProviderTheGraph) GetName() string {
+	return "Base Aerodrome"
+}
+
+func (provider *ProviderTheGraph) GetPositionsWithLiquidity(
 	ctx context.Context,
 	wallet string,
-) ([]domain.UniswapV3Position, error) {
+) ([]domain.LiquidityPoolPosition, error) {
 	var unclosedPosition unclosedPositionsQuery
 
 	variables := map[string]any{
-		"wallet": graphql.String(wallet),
+		"wallet": wallet,
 	}
 
 	err := provider.client.Query(ctx, &unclosedPosition, variables)
 	if err != nil {
-		return nil, fmt.Errorf("uniswap v3 query: %w", err)
+		return nil, fmt.Errorf("graphql.Query: %w", err)
 	}
 
 	return convertToDomain(unclosedPosition.Positions), nil
 }
 
-func convertToDomain(unclosedPositions []position) []domain.UniswapV3Position {
+func convertToDomain(unclosedPositions []position) []domain.LiquidityPoolPosition {
 	if len(unclosedPositions) == 0 {
 		return nil
 	}
 
-	return lo.Map(unclosedPositions, func(pos position, _ int) domain.UniswapV3Position {
-		return domain.UniswapV3Position{
-			ID:          pos.ID,
-			TickLower:   pos.TickLower,
-			TickUpper:   pos.TickUpper,
-			CurrentTick: mustConvertToInt(pos.Pool.Tick),
+	return lo.Map(unclosedPositions, func(pos position, _ int) domain.LiquidityPoolPosition {
+		return domain.LiquidityPoolPosition{
+			Chain:        domain.ChainBase,
+			Dex:          domain.DexAerodrome,
+			PositionLink: "https://aerodrome.finance/dash",
 			Token0: domain.Token{
 				Name: pos.Pool.Token0.Symbol,
 			},
 			Token1: domain.Token{
 				Name: pos.Pool.Token1.Symbol,
 			},
+			CurrentTick: mustConvertToInt(pos.Pool.Tick),
+			TickLower:   mustConvertToInt(pos.TickLower.TickIdx),
+			TickUpper:   mustConvertToInt(pos.TickUpper.TickIdx),
 		}
 	})
 }
@@ -76,8 +82,8 @@ type unclosedPositionsQuery struct {
 
 type position struct {
 	ID        string
-	TickLower int
-	TickUpper int
+	TickLower tick
+	TickUpper tick
 	Pool      pool
 }
 
@@ -89,4 +95,8 @@ type pool struct {
 
 type token struct {
 	Symbol string
+}
+
+type tick struct {
+	TickIdx string
 }
