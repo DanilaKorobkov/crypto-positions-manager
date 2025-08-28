@@ -38,10 +38,7 @@ func makeTelegramHandler(config LoggerConfig) slog.Handler {
 }
 
 func makeZeroLogHandler() slog.Handler {
-	writer := zerolog.ConsoleWriter{
-		Out: os.Stdout,
-	}
-	zeroLogger := zerolog.New(writer)
+	zeroLogger := zerolog.New(os.Stdout)
 
 	slogConfig := slogzerolog.Option{
 		Level:  slog.LevelDebug,

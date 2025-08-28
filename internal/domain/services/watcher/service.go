@@ -34,7 +34,7 @@ func NewService(config ServiceConfig) *Service {
 	}
 }
 
-func (service *Service) StartWatching(ctx context.Context, user domain.User) {
+func (service *Service) StartWatching(ctx context.Context, subject domain.Subject) {
 	ticker := time.NewTicker(service.checkInterval)
 
 	for {
@@ -42,29 +42,29 @@ func (service *Service) StartWatching(ctx context.Context, user domain.User) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			service.checkPositions(context.WithoutCancel(ctx), user)
+			service.checkPositions(context.WithoutCancel(ctx), subject)
 		}
 	}
 }
 
-func (service *Service) checkPositions(ctx context.Context, user domain.User) {
-	logger := service.logger.With(slog.String("wallet", user.Wallet))
+func (service *Service) checkPositions(ctx context.Context, subject domain.Subject) {
+	logger := service.logger.With(slog.String("wallet", subject.Wallet))
 
-	positions, err := service.provider.GetPositionsWithLiquidity(ctx, user.Wallet)
+	positions, err := service.provider.GetPositionsWithLiquidity(ctx, subject.Wallet)
 	if err != nil {
-		logger.Error("GetPositionsWithLiquidity", slog.String("error", err.Error()))
+		logger.Error("GetPositionsWithLiquidity", slog.String("err", err.Error()))
 		return
 	}
 
-	err = service.processPositions(ctx, user, positions)
+	err = service.processPositions(ctx, subject, positions)
 	if err != nil {
-		logger.Error("processPositions", slog.String("error", err.Error()))
+		logger.Error("processPositions", slog.String("err", err.Error()))
 	}
 }
 
 func (service *Service) processPosition(
 	ctx context.Context,
-	user domain.User,
+	subject domain.Subject,
 	position domain.UniswapV3Position,
 ) error {
 	message := buildOutOfRangeMessage(position)
@@ -72,7 +72,7 @@ func (service *Service) processPosition(
 		message = buildActivePositionMessage(position)
 	}
 
-	err := service.notifier.Notify(ctx, user, message)
+	err := service.notifier.Notify(ctx, subject, message)
 	if err != nil {
 		return fmt.Errorf("notifier.Send: %w", err)
 	}
@@ -82,7 +82,7 @@ func (service *Service) processPosition(
 
 func (service *Service) processPositions(
 	ctx context.Context,
-	user domain.User,
+	subject domain.Subject,
 	positions []domain.UniswapV3Position,
 ) error {
 	if len(positions) == 0 {
@@ -92,7 +92,7 @@ func (service *Service) processPositions(
 	executor := pool.New().WithContext(ctx).WithFirstError().WithCancelOnError()
 	for _, position := range positions {
 		executor.Go(func(ctx context.Context) error {
-			return service.processPosition(ctx, user, position)
+			return service.processPosition(ctx, subject, position)
 		})
 	}
 

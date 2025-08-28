@@ -24,8 +24,8 @@ import (
 type Config struct {
 	TelegramBotToken            string        `env:"TELEGRAM_BOT_TOKEN,required,unset"`
 	ErrorReceiverTelegramUserID int64         `env:"ERROR_RECEIVER_TELEGRAM_USER_ID,required,unset"`
-	WatchTelegramUserID         int64         `env:"WATCH_TELEGRAM_USER_ID,required,unset"`
-	WatchWallet                 string        `env:"WATCH_WALLET,required,unset"`
+	SubjectTelegramUserID       int64         `env:"SUBJECT_TELEGRAM_USER_ID,required,unset"`
+	SubjectWallet               string        `env:"SUBJECT_WALLET,required,unset"`
 	SubgraphID                  string        `env:"SUBGRAPH_ID,required"`
 	TheGraphToken               string        `env:"THE_GRAPH_TOKEN,required,unset"`
 	CheckInterval               time.Duration `env:"CHECK_INTERVAL,required"`
@@ -71,13 +71,13 @@ func main() {
 	}
 	watcherService := watcher.NewService(watcherConfig)
 
-	watchForUser := domain.User{
-		TelegramUserID: config.WatchTelegramUserID,
-		Wallet:         config.WatchWallet,
+	subject := domain.Subject{
+		TelegramUserID: config.SubjectTelegramUserID,
+		Wallet:         config.SubjectWallet,
 	}
 
 	logger.Info("starting watcher")
-	watcherService.StartWatching(ctx, watchForUser)
+	watcherService.StartWatching(ctx, subject)
 	logger.Info("watcher finished")
 }
 

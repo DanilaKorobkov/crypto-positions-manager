@@ -23,12 +23,12 @@ func NewProvider(client *graphql.Client) *Provider {
 
 func (provider *Provider) GetPositionsWithLiquidity(
 	ctx context.Context,
-	walletAddress string,
+	wallet string,
 ) ([]domain.UniswapV3Position, error) {
 	var unclosedPosition unclosedPositionsQuery
 
 	variables := map[string]any{
-		"walletAddress": graphql.String(walletAddress),
+		"wallet": graphql.String(wallet),
 	}
 
 	err := provider.client.Query(ctx, &unclosedPosition, variables)

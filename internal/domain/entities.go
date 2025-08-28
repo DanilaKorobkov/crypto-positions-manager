@@ -4,7 +4,7 @@ type Token struct {
 	Name string
 }
 
-type User struct {
+type Subject struct {
 	TelegramUserID int64
 	Wallet         string
 }

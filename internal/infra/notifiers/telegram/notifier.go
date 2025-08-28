@@ -19,8 +19,8 @@ func NewNotifier(telegramBot *tgbotapi.BotAPI) *Notifier {
 	}
 }
 
-func (n *Notifier) Notify(_ context.Context, user domain.User, text string) error {
-	message := tgbotapi.NewMessage(user.TelegramUserID, text)
+func (n *Notifier) Notify(_ context.Context, subject domain.Subject, text string) error {
+	message := tgbotapi.NewMessage(subject.TelegramUserID, text)
 	message.ParseMode = tgbotapi.ModeMarkdownV2
 
 	_, err := n.telegramBot.Send(message)
