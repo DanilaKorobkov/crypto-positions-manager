@@ -1,9 +1,13 @@
-name: cicd
+name: cicd_main
 
 on:
   push:
-    branches-ignore:
+    branches:
       - main
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   lint:
@@ -57,9 +61,10 @@ jobs:
           echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
-      - name: Build docker images
+      - name: Build and push docker images
         run: |
           docker buildx build \
             -t $IMAGE_NAME:$IMAGE_TAG \
+            -t $IMAGE_NAME:latest \
             -f build/Dockerfile \
-            .
+            --push .
