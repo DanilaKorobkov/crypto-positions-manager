@@ -57,10 +57,12 @@ func convertToDomain(unclosedPositions []position) []domain.LiquidityPoolPositio
 			TickUpper:    pos.TickUpper,
 			CurrentTick:  mustConvertToInt(pos.Pool.Tick),
 			Token0: domain.Token{
-				Name: pos.Pool.Token0.Symbol,
+				Name:     pos.Pool.Token0.Symbol,
+				Decimals: mustConvertToInt(pos.Pool.Token0.Decimals),
 			},
 			Token1: domain.Token{
-				Name: pos.Pool.Token1.Symbol,
+				Name:     pos.Pool.Token1.Symbol,
+				Decimals: mustConvertToInt(pos.Pool.Token1.Decimals),
 			},
 		}
 	})
@@ -94,5 +96,6 @@ type pool struct {
 }
 
 type token struct {
-	Symbol string
+	Symbol   string
+	Decimals string
 }

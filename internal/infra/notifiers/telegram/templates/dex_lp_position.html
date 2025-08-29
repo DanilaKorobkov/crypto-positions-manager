@@ -1,0 +1,11 @@
+<b>Statuses:</b> {{ .Statuses }}
+{{ range .Positions }}
+<b>Status: {{ .Status }}</b>
+<b>Chain:</b> {{ .Chain }}
+<b>Dex:</b> {{ .Dex }}
+<b>Position:</b> <a href="{{ .PositionLink }}">link</a>
+<b>Proportion:</b> {{ .Token0 }} ({{ .Token0Percent }}%) : {{ .Token1 }} ({{ .Token1Percent }}%)
+<b>Range low price:</b> 1 {{ .Token0 }} = {{ .LowPrice }} {{ .Token1 }}
+<b>Range up price:</b> 1 {{ .Token0 }} = {{ .UpPrice }} {{ .Token1 }}
+<b>Current price:</b> 1 {{ .Token0 }} = {{ .CurrentPrice }} {{ .Token1 }}
+{{ end }}
