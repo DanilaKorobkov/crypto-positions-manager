@@ -2,11 +2,8 @@ package watcher
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"time"
-
-	"github.com/sourcegraph/conc/pool"
 
 	"github.com/DanilaKorobkov/defi-monitoring/internal/domain"
 	"github.com/DanilaKorobkov/defi-monitoring/pkg/tickers"
@@ -62,51 +59,9 @@ func (service *Service) checkPositions(ctx context.Context, subject domain.Subje
 		return
 	}
 
-	err = service.processPositions(ctx, subject, positions)
+	err = service.notifier.NotifyLiquidityPoolPositions(ctx, subject, positions...)
 	if err != nil {
-		logger.Error("processPositions", slog.String("err", err.Error()))
+		logger.Error("NotifyLiquidityPoolPositions", slog.String("err", err.Error()))
 		return
 	}
-}
-
-func (service *Service) processPosition(
-	ctx context.Context,
-	subject domain.Subject,
-	position domain.LiquidityPoolPosition,
-) error {
-	notify := service.notifier.NotifyLiquidityPoolPositionInRange
-	if !position.IsInRange() {
-		notify = service.notifier.NotifyLiquidityPoolPositionOutOfRange
-	}
-
-	err := notify(ctx, subject, position)
-	if err != nil {
-		return fmt.Errorf("notifier.Send: %w", err)
-	}
-
-	return nil
-}
-
-func (service *Service) processPositions(
-	ctx context.Context,
-	subject domain.Subject,
-	positions []domain.LiquidityPoolPosition,
-) error {
-	if len(positions) == 0 {
-		return nil
-	}
-
-	executor := pool.New().WithContext(ctx).WithFirstError().WithCancelOnError()
-	for _, position := range positions {
-		executor.Go(func(ctx context.Context) error {
-			return service.processPosition(ctx, subject, position)
-		})
-	}
-
-	err := executor.Wait()
-	if err != nil {
-		return fmt.Errorf("executor.Wait: %w", err)
-	}
-
-	return nil
 }

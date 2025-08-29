@@ -10,8 +10,6 @@ type LiquidityPoolPositionsProvider interface {
 }
 
 type Notifier interface {
-	// NotifyLiquidityPoolPositionInRange notify subject the position is active.
-	NotifyLiquidityPoolPositionInRange(ctx context.Context, subject Subject, position LiquidityPoolPosition) error
-	// NotifyLiquidityPoolPositionOutOfRange notify subject the position out of range.
-	NotifyLiquidityPoolPositionOutOfRange(ctx context.Context, subject Subject, position LiquidityPoolPosition) error
+	// NotifyLiquidityPoolPositions notify subject the positions status and info about.
+	NotifyLiquidityPoolPositions(ctx context.Context, subject Subject, positions ...LiquidityPoolPosition) error
 }
