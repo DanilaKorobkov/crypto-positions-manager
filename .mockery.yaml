@@ -1,0 +1,5 @@
+all: true
+keeptree: true
+case: snake
+with-expecter: true
+disable-version-string: true

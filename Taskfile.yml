@@ -1,7 +1,5 @@
 version: '3'
 
-silent: true
-
 vars:
   PROJECT_NAME:
     sh: head -n 1 go.mod | awk -F ' ' '{print $2}' | awk -F '/' '{print $NF}'
@@ -15,13 +13,14 @@ vars:
 tasks:
 
   project-name:
+    silent: true
     desc: Get project name
     cmds:
       - echo "{{.PROJECT_NAME}}"
 
   image-tag:
-    desc: Get Docker image tag
     silent: true
+    desc: Get Docker image tag
     cmds:
       - |
         if [ "{{.GIT_BRANCH}}" = "main" ]; then
@@ -49,6 +48,12 @@ tasks:
     desc: Lint the github actions
     cmds:
       - go run github.com/rhysd/actionlint/cmd/actionlint@latest
+
+  mocks:
+    desc: Generate mocks
+    cmds:
+    - rm -rf ./mocks
+    - go run github.com/vektra/mockery/v2@v2.53.4
 
   tests:
     desc: Run tests

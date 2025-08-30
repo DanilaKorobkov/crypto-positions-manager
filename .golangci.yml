@@ -159,6 +159,17 @@ linters:
     - importas # TODO: Maybe turn on?
     - misspell # TODO: Maybe turn on?
 
+  exclusions:
+    # Excluding configuration per-path, per-linter, per-text and per-source.
+    rules:
+      # Exclude some linters from running on tests files.
+      - path: _test\.go
+        linters:
+          - revive
+          - goconst
+          - funlen
+          - maintidx
+
   # All available settings of specific linters.
   settings:
     # See the dedicated "linters.settings" documentation section.
