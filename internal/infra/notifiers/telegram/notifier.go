@@ -19,11 +19,18 @@ import (
 //go:embed templates/dex_lp_position.html
 var dexLPTemplate string
 
-type Notifier struct {
-	telegramBot *tgbotapi.BotAPI
+// TgBotApi - technical interface for unit tests&.
+//
+//nolint:revive // Is not important for technical interfaces
+type TgBotApi interface {
+	Send(c tgbotapi.Chattable) (tgbotapi.Message, error)
 }
 
-func NewNotifier(telegramBot *tgbotapi.BotAPI) *Notifier {
+type Notifier struct {
+	telegramBot TgBotApi
+}
+
+func NewNotifier(telegramBot TgBotApi) *Notifier {
 	return &Notifier{
 		telegramBot: telegramBot,
 	}
@@ -39,9 +46,14 @@ func (n *Notifier) NotifyLiquidityPoolPositions(
 		return fmt.Errorf("makeMessageText: %w", err)
 	}
 
-	message := tgbotapi.NewMessage(subject.TelegramUserID, messageText)
-	message.ParseMode = tgbotapi.ModeHTML
-	message.DisableWebPagePreview = true
+	message := tgbotapi.MessageConfig{
+		BaseChat: tgbotapi.BaseChat{
+			ChatID: subject.TelegramUserID,
+		},
+		DisableWebPagePreview: true,
+		ParseMode:             tgbotapi.ModeHTML,
+		Text:                  strings.TrimSpace(messageText),
+	}
 
 	_, err = n.telegramBot.Send(message)
 	if err != nil {
@@ -77,7 +89,7 @@ func makePositionRenderInfo(position domain.LiquidityPoolPosition) positionRende
 	token0, token1 := position.GetTokensPercentage()
 
 	return positionRenderInfo{
-		Status:        "✅",
+		Status:        getStatus(position),
 		Chain:         string(position.Chain),
 		Dex:           string(position.Dex),
 		PositionLink:  position.PositionLink,
