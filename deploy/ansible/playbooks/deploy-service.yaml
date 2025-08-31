@@ -1,0 +1,51 @@
+---
+- name: Deploy Service
+  hosts: all
+  remote_user: "{{ deploy_user }}"
+  become: yes
+  vars:
+    env_vars:
+      # secrets
+      THE_GRAPH_TOKEN: "{{ lookup('env','THE_GRAPH_TOKEN') }}"
+      TELEGRAM_BOT_TOKEN: "{{ lookup('env','TELEGRAM_BOT_TOKEN') }}"
+      SUBJECT_WALLET: "{{ lookup('env','SUBJECT_WALLET') }}"
+      SUBJECT_TELEGRAM_USER_ID: "{{ lookup('env','SUBJECT_TELEGRAM_USER_ID') }}"
+      ERROR_RECEIVER_TELEGRAM_USER_ID: "{{ lookup('env','ERROR_RECEIVER_TELEGRAM_USER_ID') }}"
+      # envs
+      BASE_UNISWAP_V3_SUBGRAPH_ID: "{{ lookup('env','BASE_UNISWAP_V3_SUBGRAPH_ID') }}"
+      BASE_AERODROME_SUBGRAPH_ID: "{{ lookup('env','BASE_AERODROME_SUBGRAPH_ID') }}"
+      CHECK_INTERVAL: "{{ lookup('env','CHECK_INTERVAL') }}"
+
+  tasks:
+    - name: Copy docker-compose.yaml
+      copy:
+        src: "{{ playbook_dir }}/../../docker-compose.yaml"
+        dest: "{{ app_dir }}/docker-compose.yaml"
+        owner: "{{ deploy_user }}"
+        group: "{{ deploy_user }}"
+        mode: '0644'
+
+    - name: Write .env file
+      copy:
+        dest: "{{ app_dir }}/.env"
+        owner: "{{ deploy_user }}"
+        group: "{{ deploy_user }}"
+        mode: '0600'
+        content: |
+          THE_GRAPH_TOKEN={{ env_vars.THE_GRAPH_TOKEN }}
+          TELEGRAM_BOT_TOKEN={{ env_vars.TELEGRAM_BOT_TOKEN }}
+          SUBJECT_WALLET={{ env_vars.SUBJECT_WALLET }}
+          SUBJECT_TELEGRAM_USER_ID={{ env_vars.SUBJECT_TELEGRAM_USER_ID }}
+          ERROR_RECEIVER_TELEGRAM_USER_ID={{ env_vars.ERROR_RECEIVER_TELEGRAM_USER_ID }}
+          BASE_UNISWAP_V3_SUBGRAPH_ID={{ env_vars.BASE_UNISWAP_V3_SUBGRAPH_ID }}
+          BASE_AERODROME_SUBGRAPH_ID={{ env_vars.BASE_AERODROME_SUBGRAPH_ID }}
+          CHECK_INTERVAL={{ env_vars.CHECK_INTERVAL }}
+
+    - name: Deploy containers using Docker Compose plugin
+      shell: |
+        docker compose pull
+        docker compose up -d
+      args:
+        chdir: "{{ app_dir }}"
+      become: yes
+      become_user: "{{ deploy_user }}"

@@ -1,0 +1,4 @@
+app_name: "defi-monitoring"
+app_dir: "/opt/{{ app_name }}"
+deploy_user: deploy
+deploy_key_path: ~/.ssh/deploy_key.pub

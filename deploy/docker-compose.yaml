@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  defi-monitoring-watcher:
+    image: ghcr.io/danilakorobkov/defi-monitoring:latest
+    container_name: defi-monitoring-watcher
+    restart: always
+    env_file:
+      - .env
+    networks:
+      - defi-monitoring-network
+
+networks:
+  defi-monitoring-network:
+    driver: bridge

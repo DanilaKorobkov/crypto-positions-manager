@@ -10,6 +10,9 @@ vars:
   BRANCH_SLUG:
     sh: echo "{{.GIT_BRANCH}}" | sed 's/[^a-zA-Z0-9]/-/g' | tr '[:upper:]' '[:lower:]' | cut -c 1-30
 
+dotenv:
+  - deploy/.env
+
 tasks:
 
   project-name:
@@ -72,3 +75,13 @@ tasks:
     desc: Run service in docker
     cmds:
       - docker run --rm --env-file .env {{.PROJECT_NAME}}
+
+  deploy/prepare:
+    desc: Prepare server for deploy
+    cmds:
+      - ansible-playbook deploy/ansible/playbooks/prepare.yaml -u root --ask-pass
+
+  deploy/service:
+    desc: Deploy to prod
+    cmds:
+      - ansible-playbook deploy/ansible/playbooks/deploy-service.yaml
