@@ -75,3 +75,32 @@ jobs:
             -t $IMAGE_NAME:$IMAGE_TAG \
             -f build/Dockerfile \
             .
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment: prod
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Install taskfile
+        uses: ./.github/actions/taskfile
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+      - name: Run deploy task
+        run: task deploy/service
+        env:
+          SERVER_IP: ${{ secrets.THE_GRAPH_TOKEN }}
+          THE_GRAPH_TOKEN: ${{ secrets.THE_GRAPH_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          SUBJECT_WALLET: ${{ secrets.SUBJECT_WALLET }}
+          SUBJECT_TELEGRAM_USER_ID: ${{ secrets.SUBJECT_TELEGRAM_USER_ID }}
+          ERROR_RECEIVER_TELEGRAM_USER_ID: ${{ secrets.ERROR_RECEIVER_TELEGRAM_USER_ID }}
+          BASE_UNISWAP_V3_SUBGRAPH_ID: ${{ vars.BASE_UNISWAP_V3_SUBGRAPH_ID }}
+          BASE_AERODROME_SUBGRAPH_ID: ${{ vars.BASE_AERODROME_SUBGRAPH_ID }}
+          CHECK_INTERVAL: ${{ vars.CHECK_INTERVAL }}
