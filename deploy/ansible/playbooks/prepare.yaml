@@ -1,0 +1,78 @@
+- name: Bootstrap server
+  hosts: all
+  become: yes
+  tasks:
+    - name: Create user for future deploys
+      user:
+        name: "{{ deploy_user }}"
+        shell: /bin/bash
+        create_home: yes
+        groups: sudo
+        state: present
+
+    - name: Get {{ deploy_user }} access to use sudo without password
+      copy:
+        dest: "/etc/sudoers.d/{{ deploy_user }}"
+        content: "{{ deploy_user }} ALL=(ALL) NOPASSWD:ALL\n"
+        owner: root
+        group: root
+        mode: '0440'
+
+    - name: Make .ssh dir
+      file:
+        path: "/home/{{ deploy_user }}/.ssh"
+        state: directory
+        owner: "{{ deploy_user }}"
+        group: "{{ deploy_user }}"
+        mode: '0700'
+
+    - name: Clone public key
+      authorized_key:
+        user: "{{ deploy_user }}"
+        state: present
+        key: "{{ lookup('file', deploy_key_path) }}"
+
+    - name: Ensure app directory exists
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: "{{ deploy_user }}"
+        group: "{{ deploy_user }}"
+        mode: '0755'
+
+    - name: Install docker dependencies
+      apt:
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+        state: present
+        update_cache: yes
+
+    - name: Add GPG key for Docker
+      ansible.builtin.apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+
+    - name: Install Docker and Compose plugin
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+        update_cache: yes
+
+    - name: Get deploy user access to docker group
+      user:
+        name: "{{ deploy_user }}"
+        groups: docker
+        append: yes
