@@ -102,7 +102,6 @@ jobs:
       - name: Run deploy task
         run: task deploy/service
         env:
-          SERVER_IP: ${{ secrets.THE_GRAPH_TOKEN }}
           THE_GRAPH_TOKEN: ${{ secrets.THE_GRAPH_TOKEN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           SUBJECT_WALLET: ${{ secrets.SUBJECT_WALLET }}

@@ -10,9 +10,6 @@ vars:
   BRANCH_SLUG:
     sh: echo "{{.GIT_BRANCH}}" | sed 's/[^a-zA-Z0-9]/-/g' | tr '[:upper:]' '[:lower:]' | cut -c 1-30
 
-dotenv:
-  - deploy/.env
-
 tasks:
 
   project-name:
@@ -83,5 +80,6 @@ tasks:
 
   deploy/service:
     desc: Deploy to prod
+    dotenv: ['deploy/.env']
     cmds:
       - ansible-playbook deploy/ansible/playbooks/deploy-service.yaml
