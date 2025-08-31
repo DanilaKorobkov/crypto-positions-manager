@@ -93,11 +93,16 @@ jobs:
       - name: Install taskfile
         uses: ./.github/actions/taskfile
 
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
       - name: Run deploy task
         run: task deploy/service
         env:
           SERVER_IP: ${{ secrets.THE_GRAPH_TOKEN }}
-          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
           THE_GRAPH_TOKEN: ${{ secrets.THE_GRAPH_TOKEN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           SUBJECT_WALLET: ${{ secrets.SUBJECT_WALLET }}
