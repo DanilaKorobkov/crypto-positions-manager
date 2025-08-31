@@ -44,7 +44,6 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    needs: [lint-golang, lint-actions, tests]
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
