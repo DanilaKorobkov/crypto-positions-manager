@@ -44,7 +44,7 @@
     - name: Deploy containers using Docker Compose plugin
       shell: |
         docker compose pull
-        docker compose up -d
+        docker compose up -d --force-recreate
       args:
         chdir: "{{ app_dir }}"
       become: yes
