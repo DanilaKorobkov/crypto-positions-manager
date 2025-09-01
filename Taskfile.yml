@@ -77,7 +77,7 @@ tasks:
       GO_MIGRATE: github.com/golang-migrate/migrate/v4/cmd/migrate@{{.GO_MIGRATE_VERSION}}
     preconditions:
       - sh: "test {{len .CLI_ARGS}} -gt 0"
-        msg: "Не указано имя миграции. Пример: `task create-migration -- create_table_users`"
+        msg: "Missing migration name. Пример: `task create-migration -- create_table_users`"
 
   deploy/prod/prepare:
     desc: Prepare server for deploy
@@ -86,7 +86,7 @@ tasks:
 
   deploy/prod:
     desc: Deploy to prod
-    dotenv: [ 'deploy/.env' ]
+    dotenv: [ 'deploy/.env.default', 'deploy/.env', 'deploy/.env' ]
     cmds:
       - ansible-playbook deploy/ansible/playbooks/deploy-service.yaml
 
@@ -97,7 +97,7 @@ tasks:
       - docker-compose 
         --profile infra
         --file deploy/docker-compose.yaml
-        --env-file deploy/.env.common
+        --env-file deploy/.env.default
         --env-file deploy/.env.local
         up
 
@@ -108,7 +108,7 @@ tasks:
       - docker-compose
         --profile all
         --file deploy/docker-compose.yaml
-        --env-file deploy/.env.common
+        --env-file deploy/.env.default
         --env-file deploy/.env
         --env-file deploy/.env.local
         up

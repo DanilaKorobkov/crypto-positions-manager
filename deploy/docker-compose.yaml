@@ -7,7 +7,7 @@ services:
     container_name: defi-monitoring-watcher
     restart: always
     env_file:
-      - .env.common
+      - .env.default
       - .env
       - .env.local
     networks:
