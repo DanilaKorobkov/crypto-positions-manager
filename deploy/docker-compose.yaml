@@ -1,15 +1,21 @@
-version: '3.8'
-
 services:
   defi-monitoring-watcher:
     profiles: ["all"]
     image: ${IMAGE_NAME}
     container_name: defi-monitoring-watcher
     restart: always
-    env_file:
-      - .env.default
-      - .env
-      - .env.local
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      THE_GRAPH_TOKEN: ${THE_GRAPH_TOKEN}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      SUBJECT_WALLET: ${SUBJECT_WALLET}
+      SUBJECT_TELEGRAM_USER_ID: ${SUBJECT_TELEGRAM_USER_ID}
+      ERROR_RECEIVER_TELEGRAM_USER_ID: ${ERROR_RECEIVER_TELEGRAM_USER_ID}
+      CHECK_INTERVAL: ${CHECK_INTERVAL}
     networks:
       - defi-monitoring-network
 
