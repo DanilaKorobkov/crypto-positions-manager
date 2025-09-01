@@ -86,7 +86,7 @@ tasks:
 
   deploy/prod:
     desc: Deploy to prod
-    dotenv: [ 'deploy/.env.default', 'deploy/.env', 'deploy/.env' ]
+    dotenv: [ 'deploy/.env.default', 'deploy/.env' ]
     cmds:
       - ansible-playbook deploy/ansible/playbooks/deploy-service.yaml
 
