@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
+        id: "das"
         uses: actions/checkout@v5
 
       - name: Install taskfile
@@ -49,6 +50,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     needs: [lint-golang, lint-actions, tests]
+    outputs:
+      IMAGE_NAME: ${{ steps.set_image_name_and_tag.outputs.IMAGE_NAME }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -67,9 +70,12 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set image name and tag
+        id: set_image_name_and_tag
         run: |
           IMAGE_NAME="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/$(task project-name)"
           IMAGE_TAG=$(task image-tag)
+          
+          echo "IMAGE_NAME=$IMAGE_NAME" >> "$GITHUB_OUTPUT"
           
           echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
@@ -102,11 +108,15 @@ jobs:
       - name: Run deploy task
         run: task deploy/service
         env:
+          IMAGE_NAME: "${{ needs.build.outputs.IMAGE_NAME }}:latest"
+          POSTGRES_HOST: "defi-monitoring-db"
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          POSTGRES_PORT: ${{ vars.POSTGRES_PORT }}
           THE_GRAPH_TOKEN: ${{ secrets.THE_GRAPH_TOKEN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           SUBJECT_WALLET: ${{ secrets.SUBJECT_WALLET }}
           SUBJECT_TELEGRAM_USER_ID: ${{ secrets.SUBJECT_TELEGRAM_USER_ID }}
           ERROR_RECEIVER_TELEGRAM_USER_ID: ${{ secrets.ERROR_RECEIVER_TELEGRAM_USER_ID }}
-          BASE_UNISWAP_V3_SUBGRAPH_ID: ${{ vars.BASE_UNISWAP_V3_SUBGRAPH_ID }}
-          BASE_AERODROME_SUBGRAPH_ID: ${{ vars.BASE_AERODROME_SUBGRAPH_ID }}
           CHECK_INTERVAL: ${{ vars.CHECK_INTERVAL }}
