@@ -13,3 +13,8 @@ type Notifier interface {
 	// NotifyLiquidityPoolPositions notify subject the positions status and info about.
 	NotifyLiquidityPoolPositions(ctx context.Context, subject Subject, positions ...LiquidityPoolPosition) error
 }
+
+type SubjectRepository interface {
+	Add(ctx context.Context, subject Subject) error
+	Get(ctx context.Context, id string) (Subject, error)
+}

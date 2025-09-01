@@ -1,0 +1,8 @@
+BEGIN;
+
+CREATE TABLE users (
+    id TEXT PRIMARY KEY,
+    data JSONB
+);
+
+COMMIT;

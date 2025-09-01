@@ -65,21 +65,50 @@ tasks:
     cmds:
       - docker build .
         --file build/Dockerfile
-        --tag {{.PROJECT_NAME}}
+        --tag {{.PROJECT_NAME}}:local
         --pull
 
-  run-image:
-    desc: Run service in docker
+  create-migration:
+    desc: Create new migration
     cmds:
-      - docker run --rm --env-file .env {{.PROJECT_NAME}}
+      - go run {{.GO_MIGRATE}} create -ext sql -dir migrations/sql -seq {{.CLI_ARGS}}
+    vars:
+      GO_MIGRATE_VERSION: v4.18.3
+      GO_MIGRATE: github.com/golang-migrate/migrate/v4/cmd/migrate@{{.GO_MIGRATE_VERSION}}
+    preconditions:
+      - sh: "test {{len .CLI_ARGS}} -gt 0"
+        msg: "Не указано имя миграции. Пример: `task create-migration -- create_table_users`"
 
-  deploy/prepare:
+  deploy/prod/prepare:
     desc: Prepare server for deploy
     cmds:
       - ansible-playbook deploy/ansible/playbooks/prepare.yaml -u root --ask-pass
 
-  deploy/service:
+  deploy/prod:
     desc: Deploy to prod
-    dotenv: ['deploy/.env']
+    dotenv: [ 'deploy/.env' ]
     cmds:
       - ansible-playbook deploy/ansible/playbooks/deploy-service.yaml
+
+  service/debug:
+    desc: Deploy to local environment
+    deps: [ build ]
+    cmds:
+      - docker-compose 
+        --profile infra
+        --file deploy/docker-compose.yaml
+        --env-file deploy/.env.common
+        --env-file deploy/.env.local
+        up
+
+  service/run:
+    desc: Deploy to local environment
+    deps: [ build ]
+    cmds:
+      - docker-compose
+        --profile all
+        --file deploy/docker-compose.yaml
+        --env-file deploy/.env.common
+        --env-file deploy/.env
+        --env-file deploy/.env.local
+        up

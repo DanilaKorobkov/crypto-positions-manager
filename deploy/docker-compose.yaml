@@ -1,12 +1,45 @@
-version: "3.9"
+version: '3.8'
 
 services:
   defi-monitoring-watcher:
-    image: ghcr.io/danilakorobkov/defi-monitoring:latest
+    profiles: ["all"]
+    image: ${IMAGE_NAME}
     container_name: defi-monitoring-watcher
     restart: always
     env_file:
+      - .env.common
       - .env
+      - .env.local
+    networks:
+      - defi-monitoring-network
+
+  defi-monitoring-db-migrations:
+    profiles: ["all", "infra"]
+    image: ${IMAGE_NAME}
+    environment:
+      POSTGRES_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable"
+    command: "./cli db migrations"
+    depends_on:
+      defi-monitoring-db:
+        condition: service_healthy
+    networks:
+      - defi-monitoring-network
+
+  defi-monitoring-db:
+    profiles: ["all", "infra"]
+    image: postgres:17.6-alpine
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    healthcheck:
+      test: "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"
+      start_interval: 5s
+      interval: 2s
+      timeout: 5s
+      retries: 5
     networks:
       - defi-monitoring-network
 

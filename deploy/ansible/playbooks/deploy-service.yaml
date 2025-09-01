@@ -32,13 +32,17 @@
         group: "{{ deploy_user }}"
         mode: '0600'
         content: |
+          IMAGE_NAME={{ env_vars.IMAGE_NAME }}
+          POSTGRES_HOST={{ env_vars.POSTGRES_HOST }}
+          POSTGRES_USER={{ env_vars.POSTGRES_USER }}
+          POSTGRES_PASSWORD={{ env_vars.POSTGRES_PASSWORD }}
+          POSTGRES_DB={{ env_vars.POSTGRES_DB }}
+          POSTGRES_PORT={{ env_vars.POSTGRES_PORT }}
           THE_GRAPH_TOKEN={{ env_vars.THE_GRAPH_TOKEN }}
           TELEGRAM_BOT_TOKEN={{ env_vars.TELEGRAM_BOT_TOKEN }}
           SUBJECT_WALLET={{ env_vars.SUBJECT_WALLET }}
           SUBJECT_TELEGRAM_USER_ID={{ env_vars.SUBJECT_TELEGRAM_USER_ID }}
           ERROR_RECEIVER_TELEGRAM_USER_ID={{ env_vars.ERROR_RECEIVER_TELEGRAM_USER_ID }}
-          BASE_UNISWAP_V3_SUBGRAPH_ID={{ env_vars.BASE_UNISWAP_V3_SUBGRAPH_ID }}
-          BASE_AERODROME_SUBGRAPH_ID={{ env_vars.BASE_AERODROME_SUBGRAPH_ID }}
           CHECK_INTERVAL={{ env_vars.CHECK_INTERVAL }}
 
     - name: Deploy containers using Docker Compose plugin
