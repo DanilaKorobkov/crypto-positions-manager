@@ -5,19 +5,20 @@ import (
 	"io/fs"
 
 	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/source/iofs"
+
 	// Postgres driver.
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	// File system driver for embed.
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"github.com/golang-migrate/migrate/v4/source/iofs"
 )
 
-func MakePostgresMigrator(url string, fs fs.FS) (*migrate.Migrate, error) {
-	return MakePostgresMigratorWithPath(url, fs, "sql")
+func MakePostgresMigrator(url string, embed fs.FS) (*migrate.Migrate, error) {
+	return MakePostgresMigratorWithPath(url, embed, "sql")
 }
 
-func MakePostgresMigratorWithPath(url string, fs fs.FS, path string) (*migrate.Migrate, error) {
-	dataDriver, err := iofs.New(fs, path)
+func MakePostgresMigratorWithPath(url string, embed fs.FS, path string) (*migrate.Migrate, error) {
+	dataDriver, err := iofs.New(embed, path)
 	if err != nil {
 		return nil, fmt.Errorf("load embed migration files: %w", err)
 	}

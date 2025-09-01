@@ -4,12 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/DanilaKorobkov/defi-monitoring/pkg/migrators"
-	"github.com/golang-migrate/migrate/v4"
-	"github.com/urfave/cli/v3"
 	"io/fs"
 	"log/slog"
 	"strings"
+
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/urfave/cli/v3"
+
+	"github.com/DanilaKorobkov/defi-monitoring/pkg/migrators"
 )
 
 type Config struct {
@@ -43,6 +45,7 @@ func newDBCommands(config DBCommandConfig) *cli.Command {
 	}
 }
 
+//nolint:maintidx // How to simplify?
 func newMigrateCommand(config MigratorCommandConfig) *cli.Command {
 	var pgURL string
 
@@ -52,7 +55,7 @@ func newMigrateCommand(config MigratorCommandConfig) *cli.Command {
 		Flags: []cli.Flag{
 			makeToURLFlag(&pgURL, config.PostgresURLEnvName),
 		},
-		Action: func(ctx context.Context, command *cli.Command) error {
+		Action: func(context.Context, *cli.Command) error {
 			migrator, err := migrators.MakePostgresMigratorWithPath(pgURL, config.Migrations, "sql")
 			if err != nil {
 				message := fmt.Sprintf("migrators.MakePostgresMigratorWithPath: %s", err)
@@ -86,9 +89,11 @@ func migrateCheck(migrator *migrate.Migrate, logger *slog.Logger) error {
 	if err != nil {
 		return fmt.Errorf("check migrations: %w", err)
 	}
+
 	logger.With("version", resultVersion).
 		With("isDirty", isDirty).
 		Info("migrator version")
+
 	return nil
 }
 

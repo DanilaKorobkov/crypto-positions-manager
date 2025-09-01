@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
-	"github.com/DanilaKorobkov/defi-monitoring/internal/presentation/cli"
-	"github.com/DanilaKorobkov/defi-monitoring/migrations"
 	"log/slog"
 	"os"
+
+	"github.com/DanilaKorobkov/defi-monitoring/internal/presentation/cli"
+	"github.com/DanilaKorobkov/defi-monitoring/migrations"
 )
 
 func main() {
@@ -21,6 +22,7 @@ func main() {
 		},
 	}
 	command := cli.New(config)
+
 	err := command.Run(context.Background(), os.Args)
 	if err != nil {
 		fatal(logger, err)

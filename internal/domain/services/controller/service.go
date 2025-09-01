@@ -1,4 +1,3 @@
 package controller
 
-type Service struct {
-}
+type Service struct{}
