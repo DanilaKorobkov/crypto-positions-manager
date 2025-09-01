@@ -35,8 +35,7 @@
 
     - name: Deploy containers using Docker Compose plugin
       shell: |
-        docker compose pull
-        docker compose --profile all --env-file .env up -d --force-recreate
+        docker compose --profile all --env-file .env up -d --pull always --force-recreate
       args:
         chdir: "{{ app_dir }}"
       become: yes

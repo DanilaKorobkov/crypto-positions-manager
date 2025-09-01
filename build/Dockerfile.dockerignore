@@ -1,4 +1,7 @@
+*
 !cmd
 !internal
+!pkg
+!migrations
 !go.mod
 !go.sum
