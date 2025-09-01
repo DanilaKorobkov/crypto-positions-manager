@@ -106,7 +106,7 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
 
       - name: Run deploy task
-        run: task deploy/service
+        run: task deploy/prod
         env:
           IMAGE_NAME: "${{ needs.build.outputs.IMAGE_NAME }}:latest"
           POSTGRES_HOST: "defi-monitoring-db"
