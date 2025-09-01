@@ -24,7 +24,7 @@ services:
     image: ${IMAGE_NAME}
     environment:
       POSTGRES_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable"
-    command: "./cli db migrations"
+    command: "/app/cli db migrations"
     depends_on:
       defi-monitoring-db:
         condition: service_healthy

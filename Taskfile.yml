@@ -63,7 +63,7 @@ tasks:
   build:
     desc: Build docker image with service
     cmds:
-      - docker build .
+      - docker buildx build .
         --file build/Dockerfile
         --tag {{.PROJECT_NAME}}:local
         --pull
