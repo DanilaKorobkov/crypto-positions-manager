@@ -1,6 +1,8 @@
 package domain
 
-import "math"
+import (
+	"math"
+)
 
 type (
 	Chain string

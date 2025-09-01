@@ -23,13 +23,16 @@ import (
 	"github.com/DanilaKorobkov/defi-monitoring/internal/infra/positions_providers/base/uniswap_v3"
 )
 
+const (
+	baseUniswapV3GraphID = "HMuAwufqZ1YCRmzL2SfHTVkzZovC9VL2UAKhjvRqKiR1"
+	baseAerodromeGraphID = "GENunSHWLBXm59mBSgPzQ8metBEp9YDfdqwFr91Av1UM"
+)
+
 type Config struct {
 	TelegramBotToken            string        `env:"TELEGRAM_BOT_TOKEN,required,unset"`
 	ErrorReceiverTelegramUserID int64         `env:"ERROR_RECEIVER_TELEGRAM_USER_ID,required,unset"`
 	SubjectTelegramUserID       int64         `env:"SUBJECT_TELEGRAM_USER_ID,required,unset"`
 	SubjectWallet               string        `env:"SUBJECT_WALLET,required,unset"`
-	BaseUniswapV3SubgraphID     string        `env:"BASE_UNISWAP_V3_SUBGRAPH_ID,required"`
-	BaseAerodromeSubgraphID     string        `env:"BASE_AERODROME_SUBGRAPH_ID,required"`
 	TheGraphToken               string        `env:"THE_GRAPH_TOKEN,required,unset"`
 	CheckInterval               time.Duration `env:"CHECK_INTERVAL,required"`
 }
@@ -82,7 +85,7 @@ func main() {
 }
 
 func makeBaseUniswapV3Provider(config Config) *uniswap_v3.ProviderTheGraph {
-	url := "https://gateway.thegraph.com/api/subgraphs/id/" + config.BaseUniswapV3SubgraphID
+	url := "https://gateway.thegraph.com/api/subgraphs/id/" + baseUniswapV3GraphID
 	setAuth := func(r *http.Request) {
 		r.Header.Set("Authorization", "Bearer "+config.TheGraphToken)
 	}
@@ -92,7 +95,7 @@ func makeBaseUniswapV3Provider(config Config) *uniswap_v3.ProviderTheGraph {
 }
 
 func makeBaseAerodromeProvider(config Config) *aerodrome.ProviderTheGraph {
-	url := "https://gateway.thegraph.com/api/subgraphs/id/" + config.BaseAerodromeSubgraphID
+	url := "https://gateway.thegraph.com/api/subgraphs/id/" + baseAerodromeGraphID
 	setAuth := func(r *http.Request) {
 		r.Header.Set("Authorization", "Bearer "+config.TheGraphToken)
 	}

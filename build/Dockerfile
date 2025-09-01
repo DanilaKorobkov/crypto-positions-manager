@@ -4,11 +4,8 @@ WORKDIR /bin
 
 COPY .. .
 
-# Описание флагов:
-# https://pkg.go.dev/cmd/link
-# -ldflags '-s -w' - негласный стандарт для продуктовых бинарников, позволяет сократить размер
-# бинарников примерно на 30%, удаляя всю отладочную информацию из них.
-RUN CGO_ENABLED=0 go build -ldflags '-s -w' -o ./ ./cmd/watcher
+RUN CGO_ENABLED=0 go build -ldflags '-s -w' -o ./watcher ./cmd/watcher && \
+    CGO_ENABLED=0 go build -ldflags '-s -w' -o ./cli ./cmd/cli
 
 FROM alpine:3.14 AS runtime
 
@@ -18,6 +15,6 @@ WORKDIR /app
 RUN adduser -S app
 USER app
 
-COPY --from=builder /bin/watcher ./
+COPY --from=builder --chown=app /bin/watcher /bin/cli ./
 
 CMD ["./watcher"]
