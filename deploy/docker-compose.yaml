@@ -36,18 +36,25 @@ services:
     image: postgres:17.6-alpine
     ports:
       - "${POSTGRES_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     healthcheck:
       test: "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"
-      start_interval: 5s
+      start_period: 5s
       interval: 2s
       timeout: 5s
       retries: 5
     networks:
       - defi-monitoring-network
+
+volumes:
+  postgres_data:
+    name: defi-monitoring-db-volume
+    driver: local
 
 networks:
   defi-monitoring-network:

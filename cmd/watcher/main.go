@@ -12,6 +12,8 @@ import (
 	"github.com/caarlos0/env/v11"
 	"github.com/hasura/go-graphql-client"
 
+	_ "github.com/lib/pq"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
 	"github.com/DanilaKorobkov/defi-monitoring/internal"
@@ -76,7 +78,8 @@ func main() {
 
 	subject := domain.Subject{
 		TelegramUserID: config.SubjectTelegramUserID,
-		Wallet:         config.SubjectWallet,
+		Wallets:        []string{config.SubjectWallet},
+		CheckInterval:  config.CheckInterval,
 	}
 
 	logger.Info("starting watcher")

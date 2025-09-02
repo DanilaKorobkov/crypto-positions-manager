@@ -56,6 +56,7 @@ tasks:
     - go run github.com/vektra/mockery/v2@v2.53.4
 
   tests:
+    deps: [ service/debug ]
     desc: Run tests
     cmds:
       - go test -race ./...
@@ -94,18 +95,18 @@ tasks:
     desc: Deploy to local environment
     deps: [ build ]
     cmds:
-      - docker-compose 
+      - docker compose 
         --profile infra
         --file deploy/docker-compose.yaml
         --env-file deploy/.env.default
         --env-file deploy/.env.local
-        up
+        up -d
 
   service/run:
     desc: Deploy to local environment
     deps: [ build ]
     cmds:
-      - docker-compose
+      - docker compose
         --profile all
         --file deploy/docker-compose.yaml
         --env-file deploy/.env.default
