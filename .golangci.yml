@@ -169,6 +169,11 @@ linters:
           - goconst
           - funlen
           - maintidx
+      # Exclude some linters from running on tests files.
+      - path: 'test/generators/(.+)\.go'
+        linters:
+          - funlen
+          - goconst
 
   # All available settings of specific linters.
   settings:

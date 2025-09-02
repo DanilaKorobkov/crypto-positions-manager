@@ -46,9 +46,12 @@ func (service *Service) StartWatching(ctx context.Context, subject domain.Subjec
 }
 
 func (service *Service) checkPositions(ctx context.Context, subject domain.Subject) {
-	logger := service.logger.With(slog.String("wallet", subject.Wallet))
+	logger := service.logger.With(slog.String("wallet", subject.Wallets[0]))
 
-	positions, err := service.liquidityPoolPositions.GetPositionsWithLiquidity(ctx, subject.Wallet)
+	positions, err := service.liquidityPoolPositions.GetPositionsWithLiquidity(
+		ctx,
+		subject.Wallets[0],
+	)
 	if err != nil {
 		logger.Error("GetPositionsWithLiquidity", slog.String("err", err.Error()))
 		return

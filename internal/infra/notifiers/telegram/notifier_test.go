@@ -12,6 +12,7 @@ import (
 	"github.com/DanilaKorobkov/defi-monitoring/internal/domain"
 	"github.com/DanilaKorobkov/defi-monitoring/internal/infra/notifiers/telegram"
 	mocks "github.com/DanilaKorobkov/defi-monitoring/mocks/internal_/infra/notifiers/telegram"
+	"github.com/DanilaKorobkov/defi-monitoring/test/generators"
 )
 
 type notifierSuite struct {
@@ -59,7 +60,7 @@ func (s *notifierSuite) TestFake() {
 		s.Run(testCase.name, func() {
 			ctx := context.Background()
 
-			subject := makeSubject()
+			subject := generators.NewSubjectGenerator().Slim().Result()
 			position := testCase.makePosition()
 
 			expectedMessage := tgbotapi.MessageConfig{
@@ -79,13 +80,6 @@ func (s *notifierSuite) TestFake() {
 			err := notifier.NotifyLiquidityPoolPositions(ctx, subject, position)
 			s.Require().NoError(err)
 		})
-	}
-}
-
-func makeSubject() domain.Subject {
-	return domain.Subject{
-		TelegramUserID: 311402331,
-		Wallet:         "0x1111111254fb6c44bAC0beD2854e76F90643097d",
 	}
 }
 

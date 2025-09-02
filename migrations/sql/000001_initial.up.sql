@@ -1,8 +1,8 @@
 BEGIN;
 
-CREATE TABLE users (
-    id TEXT PRIMARY KEY,
-    data JSONB
+CREATE TABLE subjects (
+    telegram_user_id INTEGER PRIMARY KEY,
+    payload JSONB
 );
 
 COMMIT;

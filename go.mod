@@ -5,8 +5,13 @@ go 1.23.6
 require (
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
+	github.com/gogo/protobuf v1.3.2
 	github.com/golang-migrate/migrate/v4 v4.18.3
 	github.com/hasura/go-graphql-client v0.14.4
+	github.com/jmoiron/sqlx v1.4.0
+	github.com/joho/godotenv v1.5.1
+	github.com/json-iterator/go v1.1.12
+	github.com/lib/pq v1.10.9
 	github.com/platx/slog-telegram v1.0.0
 	github.com/rs/zerolog v1.34.0
 	github.com/samber/lo v1.51.0
@@ -23,9 +28,10 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
-	github.com/lib/pq v1.10.9 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
+	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/samber/slog-common v0.19.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect

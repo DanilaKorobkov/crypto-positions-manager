@@ -1,5 +1,5 @@
 BEGIN;
 
-DROP TABLE users;
+DROP TABLE subjects;
 
 COMMIT;

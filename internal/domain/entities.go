@@ -2,6 +2,7 @@ package domain
 
 import (
 	"math"
+	"time"
 )
 
 type (
@@ -25,7 +26,8 @@ type Token struct {
 
 type Subject struct {
 	TelegramUserID int64
-	Wallet         string
+	Wallets        []string
+	CheckInterval  time.Duration
 }
 
 type LiquidityPoolPosition struct {
