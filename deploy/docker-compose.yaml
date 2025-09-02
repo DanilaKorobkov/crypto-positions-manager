@@ -44,7 +44,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     healthcheck:
       test: "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"
-      start_interval: 5s
+      start_period: 5s
       interval: 2s
       timeout: 5s
       retries: 5
