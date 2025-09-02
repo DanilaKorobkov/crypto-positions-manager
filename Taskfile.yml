@@ -95,7 +95,7 @@ tasks:
     desc: Deploy to local environment
     deps: [ build ]
     cmds:
-      - docker-compose 
+      - docker compose 
         --profile infra
         --file deploy/docker-compose.yaml
         --env-file deploy/.env.default
@@ -106,7 +106,7 @@ tasks:
     desc: Deploy to local environment
     deps: [ build ]
     cmds:
-      - docker-compose
+      - docker compose
         --profile all
         --file deploy/docker-compose.yaml
         --env-file deploy/.env.default
